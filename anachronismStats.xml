@@ -1,0 +1,240 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
+    <Script file="anachronismStats.lua"/>    
+
+    <Font name="GameFontNormalSmallWhite" inherits="GameFontNormalSmall" virtual="true">
+		<Color r="1.0" g="1.0" b="1.0"/>
+	</Font>
+
+    <Frame name="AS_HeaderFrameTemplate" virtual="true">
+        <Size>
+            <AbsDimension x="104" y="13"/>
+        </Size>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <FontString name="$parentHeader" parentKey="Header" inherits="GameFontNormalSmall">
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="AS_StatFrameTemplate" virtual="true">
+        <Size>
+            <AbsDimension x="104" y="13"/>
+        </Size>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <FontString name="$parentStatLabel" parentKey="Label" inherits="GameFontNormalSmallWhite">
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame name="$parentStat" parentKey="ValueFrame">
+                <Size>
+                    <AbsDimension x="30" y="13"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="RIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <FontString name="$parentText" parentKey="Value" inherits="GameFontNormalSmallWhite" justifyH="RIGHT">
+                            <Anchors>
+                                <Anchor point="RIGHT"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+        <Scripts>
+        
+        </Scripts>
+    </Frame>
+
+    <!-- This button must be named like this. Lots of internal Blizzard code makes assumptions about 
+    CharacterFrame tab names. -->
+    <Button name="CharacterFrameTab6" inherits="CharacterFrameTabButtonTemplate" id="6" text="Stats" motionScriptsWhileDisabled="false" parent="CharacterFrame">
+        <Anchors>
+            <Anchor point="LEFT" relativeTo="CharacterFrameTab4" relativePoint="RIGHT">
+                <Offset>
+                    <AbsDimension x="-16" y="0"/>
+                </Offset>
+            </Anchor>
+        </Anchors>
+        <Scripts>
+            <OnEnter>
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+                GameTooltip:SetText(MicroButtonTooltipText("Anachronism Stats", ""), 1.0,1.0,1.0 );
+            </OnEnter>
+            <OnLeave function="GameTooltip_Hide"/>
+            <OnLoad function="CharacterFrameTab6_OnLoad"/>
+        </Scripts>
+    </Button>
+    <Frame name="AnachronismStatsFrame" setAllPoints="true" enableMouse="true" parent="CharacterFrame" useParentLevel="true" id="6">
+        <HitRectInsets>
+			<AbsInset left="0" right="30" top="0" bottom="75"/>
+		</HitRectInsets>
+        <Scripts>
+            <OnLoad function="AnachronismStatsFrame_OnLoad"/>
+            <OnEvent function="AnachronismStatsFrame_OnEvent"/>
+        </Scripts>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture file="Interface\PaperDollInfoFrame\UI-Character-General-TopLeft">
+					<Size>
+						<AbsDimension x="256" y="256"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="2" y="-1"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\PaperDollInfoFrame\UI-Character-General-TopRight">
+					<Size>
+						<AbsDimension x="128" y="256"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="258" y="-1"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\PaperDollInfoFrame\UI-Character-General-BottomLeft">
+					<Size>
+						<AbsDimension x="256" y="256"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="2" y="-257"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\PaperDollInfoFrame\UI-Character-General-BottomRight">
+					<Size>
+						<AbsDimension x="128" y="256"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="258" y="-257"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+        </Layers>
+        <Frames>
+        <!-- Attributes -->
+            <Frame name="StatsHeaderFrame" inherits="AS_HeaderFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AnachronismStatsFrame" relativePoint="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="30" y="-80"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Header:SetText("Attributes");
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Strength -->
+            <Frame name="StrengthLabelFrame" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="StatsHeaderFrame">
+                        <Offset>
+                            <AbsDimension x="0" y="-15"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Strength:");
+                        self.stat = "STRENGTH";                                           
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Agility -->
+            <Frame name="AgilityLabelFrame" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="StrengthLabelFrame">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Agility:");
+                        self.stat = "AGILITY";                                           
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Stamina -->
+            <Frame name="StaminaLabelFrame" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AgilityLabelFrame">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Stamina:");
+                        self.stat = "STAMINA";                                           
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Intellect -->
+            <Frame name="IntellectLabelFrame" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="StaminaLabelFrame">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Intellect:");
+                        self.stat = "INTELLECT";                                           
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Spirit -->
+            <Frame name="SpiritLabelFrame" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="IntellectLabelFrame">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Spirit:");
+                        self.stat = "SPIRIT";                                           
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+        </Frames>
+    </Frame>
+</Ui>

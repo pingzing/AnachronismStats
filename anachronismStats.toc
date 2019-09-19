@@ -1,0 +1,10 @@
+## Interface: 11302
+## Title: AnachronismStats
+## Notes: Bring the magic of BC stat info to Classic.
+## Author: PingZing
+## Version: 1.0
+## SavedVariables: anaOpts
+## X-Email: psychozagal@gmail.com
+## X-License: MIT
+
+anachronismStats.xml
