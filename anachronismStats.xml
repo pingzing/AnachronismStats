@@ -10,7 +10,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
 
     <Frame name="AS_HeaderFrameTemplate" virtual="true">
         <Size>
-            <AbsDimension x="104" y="13"/>
+            <AbsDimension x="115" y="13"/>
         </Size>
         <Layers>
             <Layer level="BACKGROUND">
@@ -25,7 +25,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
 
     <Frame name="AS_StatFrameTemplate" virtual="true">
         <Size>
-            <AbsDimension x="104" y="13"/>
+            <AbsDimension x="115" y="13"/>
         </Size>
         <Layers>
             <Layer level="BACKGROUND">
@@ -82,6 +82,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
             </OnEnter>
             <OnLeave function="GameTooltip_Hide"/>
             <OnLoad function="CharacterFrameTab6_OnLoad"/>
+            <OnHide function="CharacterFrameTab6_OnHide"/>
         </Scripts>
     </Button>
     <Frame name="AnachronismStatsFrame" setAllPoints="true" enableMouse="true" parent="CharacterFrame" useParentLevel="true" id="6">
@@ -240,6 +241,214 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
                     </OnLoad>
                 </Scripts>
             </Frame>
+
+            <!-- Melee -->
+            <Frame name="AS_MeleeHeaderFrame" inherits="AS_HeaderFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame5" relativePoint="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="0" y="-24"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Header:SetText("Melee");
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Damage -->
+            <Frame name="AS_MeleeLabelFrame1" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_MeleeHeaderFrame">
+                        <Offset>
+                            <AbsDimension x="0" y="-15"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Damage:");
+                        self.name = "Damage";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Speed -->
+            <Frame name="AS_MeleeLabelFrame2" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame1">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Speed:");
+                        self.name = "Attack Speed";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- AP -->
+            <Frame name="AS_MeleeLabelFrame3" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame2">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Power:");
+                        self.name = "Attack Power";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Hit -->
+            <Frame name="AS_MeleeLabelFrame4" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame3">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Hit Chance:");
+                        self.name = "Hit Chance";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Crit -->
+            <Frame name="AS_MeleeLabelFrame5" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame4">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Crit Chance:");
+                        self.name = "Crit Chance";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Wep Skill -->
+            <Frame name="AS_MeleeLabelFrame6" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame5">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Weapon Skill:");
+                        self.name = "Weapon Skill";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+
+            <!-- Spell -->
+            <Frame name="AS_SpellHeaderFrame" inherits="AS_HeaderFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame6" relativePoint="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="0" y="-24"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Header:SetText("Spell");
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Damage -->
+            <Frame name="AS_SpellLabelFrame1" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_SpellHeaderFrame">
+                        <Offset>
+                            <AbsDimension x="0" y="-15"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Damage:");
+                        self.name = "Damage";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Healing -->
+            <Frame name="AS_SpellLabelFrame2" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame1">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Healing:");
+                        self.name = "Healing";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Hit -->
+            <Frame name="AS_SpellLabelFrame3" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame2">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Hit Chance:");
+                        self.name = "Spell Hit";
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+            <!-- Crit -->
+            <Frame name="AS_SpellLabelFrame4" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame3">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Crit Chance:");
+                        self.name = "Spell Crit";
+                    </OnLoad>
+                </Scripts>
+            </Frame>            
+            <!-- Regen -->
+            <Frame name="AS_SpellLabelFrame5" inherits="AS_StatFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame4">
+                        <Offset>
+                            <AbsDimension x="0" y="-12"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self.Label:SetText("Mana Regen:");
+                        self.name = "Mana Regen";
+                    </OnLoad>
+                </Scripts>
+            </Frame> 
         </Frames>
     </Frame>
 </Ui>
