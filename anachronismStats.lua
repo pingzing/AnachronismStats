@@ -1,4 +1,15 @@
 local DEFAULT_SUBFRAMES = { "PaperDollFrame", "PetPaperDollFrame", "ReputationFrame", "SkillFrame", "HonorFrame" };
+local CLASSES = { 
+    Warrior = CLASSES.Warrior,
+    Rogue = CLASSES.Rogue,
+    Paladin = CLASSES.Paladin,
+    Warlock = "WARLOCK",
+    Mage = "MAGE",
+    Shaman = CLASSES.Shaman,
+    Druid = CLASSES.Druid,
+    Priest = "PRIEST",
+    Hunter = CLASSES.Hunter,
+ };
 local base_OnClick = CharacterFrameTab_OnClick;
 
 local function cPrint(text)
@@ -16,17 +27,44 @@ local function ShowAnachronismStatsFrame()
 end
 
 local function GetStrengthDetailText(base, current, posBuff, negBuff)
-    -- Todo: If Warrior, Paladin or Shaman, get block value (Str / 20 (minus base str?))
-    -- If Warrior or Paladin (or Bear druid?), Get Str * 2 for AP
-    -- Else, get Str * 1 for AP
+    local _, classFileName = UnitClass("player");
+    local stanceNum = GetShapeshiftForm();
+    local strengthDetailText = "";
+    if (classFileName == CLASSES.Warrior or classFileName == CLASSES.Paladin or classFileName == CLASSES.Shaman) then
+        -- TODO Figure out if we need to subtract base strength from 'current' here.
+        strengthDetailText = "Increases block value by "..floor(current / 20).."\n"; -- I hope this rounds down. Can stats go negative?
+    end    
+    -- Bears get 2 AP per strength, so check for "Druid && Bear" in addition to Warr or Pally.
+    if (classFileName == CLASSES.Warrior or classFileName == CLASSES.Paladin or ( classFileName == CLASSES.Druid and stanceNum == 1 )) then
+        strengthDetailText = strengthDetailText.."Increases melee attack power by ".. (current * 2).."\n";
+        -- Everyone else gets 1 AP per Str.
+    else
+        strengthDetailText = strengthDetailText.."Increases melee attack power by ".. current.."\n";
+    end
+
+    return strtrim(strengthDetailText);
 end
 
 local function GetAgilityDetailText(base, current, posBuff, negBuff)
-    -- Todo: 1 AP for Rogues, Cat? Druids, Hunters
-    -- 2 Armor per Agi
+    local _, classFileName = UnitClass("player");
+    local stanceNum = GetShapeshiftForm();
+    local agiDetailText = "";    
+    -- 1 AP for Rogues, Hunters, and Cat Druids
+    if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Hunter or ( classFileName == CLASSES.Druid and stanceNum == 3 ) ) then
+        agiDetailText = "Increases melee attack power by "..current.."\n";
+    end
     -- 2 RAP per Agi for hunters. 1 RAP per point for Warrs and Rogues.
-    -- Crit chance (little different for everyone)
-    -- Dodge chance (ditto)
+    if (classFileName == CLASSES.Hunter) then
+        agiDetailText = agiDetailText.. "Increases ranged attack power by ".. (current * 2).."\n";
+    elseif (classFileName == CLASSES.Warrior or classFileName == CLASSES.Rogue) then
+        agiDetailText = agiDetailText.. "Increases ranged attack power by "..current.."\n";
+    end
+    -- TODO Crit chance (little different for everyone, and differs per-level based on some mystery formula)
+    -- TODO Dodge chance (ditto)
+    -- 2 Armor per Agi
+    agiDetailText = agiDetailText.."Increases armor by "..(current * 2);
+
+    return strtrim(agiDetailText);
 end
 
 local function GetStaminaDetailText(base, current, posBuff, negBuff)
@@ -114,6 +152,7 @@ function AnachronismStatsFrame_OnLoad(self)
 	self:RegisterEvent("UNIT_RANGED_ATTACK_POWER");
 	self:RegisterEvent("UNIT_ATTACK");	
     self:RegisterEvent("SKILL_LINES_CHANGED");
+    self:RegisterEvent("UPDATE_SHAPESHIFT_FORMS");
     
     -- Queue one initial update
     self:SetScript("OnUpdate", AnachronismStatsFrame_QueuedUpdate);
@@ -174,11 +213,14 @@ function AnachronismStatsFrame_SetDefenses()
 end
 
 function AS_ShowStatTooltip(self)
-    if (not (self.tooltip)) then
+    if (not (self.tooltipRow1)) then
         return;
     end
 
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
     GameTooltip:SetText(self.tooltip, 1.0, 1.0, 1.0);
+    if (self.tooltipRow2) then
+        GameTooltip:AddLine(self.tooltipRow2, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true);
+    end
     GameTooltip:Show();
 end
