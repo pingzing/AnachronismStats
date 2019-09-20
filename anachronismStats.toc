@@ -5,6 +5,6 @@
 ## Version: 1.0
 ## SavedVariables: anaOpts
 ## X-Email: psychozagal@gmail.com
-## X-License: MIT
+## X-License: GPL v3
 
 anachronismStats.xml

@@ -56,7 +56,12 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
             </Frame>
         </Frames>
         <Scripts>
-        
+            <OnEnter>
+                AS_ShowStatTooltip(self);
+            </OnEnter>
+            <OnLeave>
+                GameTooltip:Hide();
+            </OnLeave>
         </Scripts>
     </Frame>
 
@@ -141,7 +146,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
         </Layers>
         <Frames>
         <!-- Attributes -->
-            <Frame name="StatsHeaderFrame" inherits="AS_HeaderFrameTemplate">
+            <Frame name="AS_StatsHeaderFrame" inherits="AS_HeaderFrameTemplate">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeTo="AnachronismStatsFrame" relativePoint="TOPLEFT">
                         <Offset>
@@ -156,9 +161,9 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
                 </Scripts>
             </Frame>
             <!-- Strength -->
-            <Frame name="StrengthLabelFrame" inherits="AS_StatFrameTemplate">
+            <Frame name="AS_AttributeLabelFrame1" inherits="AS_StatFrameTemplate">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="StatsHeaderFrame">
+                    <Anchor point="TOPLEFT" relativeTo="AS_StatsHeaderFrame">
                         <Offset>
                             <AbsDimension x="0" y="-15"/>
                         </Offset>
@@ -172,9 +177,9 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
                 </Scripts>
             </Frame>
             <!-- Agility -->
-            <Frame name="AgilityLabelFrame" inherits="AS_StatFrameTemplate">
+            <Frame name="AS_AttributeLabelFrame2" inherits="AS_StatFrameTemplate">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="StrengthLabelFrame">
+                    <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame1">
                         <Offset>
                             <AbsDimension x="0" y="-12"/>
                         </Offset>
@@ -188,9 +193,9 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
                 </Scripts>
             </Frame>
             <!-- Stamina -->
-            <Frame name="StaminaLabelFrame" inherits="AS_StatFrameTemplate">
+            <Frame name="AS_AttributeLabelFrame3" inherits="AS_StatFrameTemplate">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="AgilityLabelFrame">
+                    <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame2">
                         <Offset>
                             <AbsDimension x="0" y="-12"/>
                         </Offset>
@@ -204,9 +209,9 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
                 </Scripts>
             </Frame>
             <!-- Intellect -->
-            <Frame name="IntellectLabelFrame" inherits="AS_StatFrameTemplate">
+            <Frame name="AS_AttributeLabelFrame4" inherits="AS_StatFrameTemplate">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="StaminaLabelFrame">
+                    <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame3">
                         <Offset>
                             <AbsDimension x="0" y="-12"/>
                         </Offset>
@@ -220,9 +225,9 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
                 </Scripts>
             </Frame>
             <!-- Spirit -->
-            <Frame name="SpiritLabelFrame" inherits="AS_StatFrameTemplate">
+            <Frame name="AS_AttributeLabelFrame5" inherits="AS_StatFrameTemplate">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IntellectLabelFrame">
+                    <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame4">
                         <Offset>
                             <AbsDimension x="0" y="-12"/>
                         </Offset>
