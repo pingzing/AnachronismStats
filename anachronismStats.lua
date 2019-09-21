@@ -75,6 +75,30 @@ local function GetPercentRegenWhileCasting(class)
     return 0;
 end
 
+local function GetDefenseValues()
+    
+    -- UnitDefense("player") is broken, use the below instead
+    local numSkills = GetNumSkillLines();
+	local skillIndex = 0;
+
+	for i = 1, numSkills do
+		local skillName = select(1, GetSkillLineInfo(i));
+
+		if (skillName == DEFENSE) then
+			skillIndex = i;
+			break;
+		end
+	end
+
+	local skillRank, skillModifier;
+	if (skillIndex > 0) then
+		skillRank = select(4, GetSkillLineInfo(skillIndex));
+		skillModifier = select(6, GetSkillLineInfo(skillIndex));
+    end
+    
+    return skillRank, skillModifier;
+end
+
 local function GetStatValue(base, posBuff, negBuff)
     local effective = max(0,base + posBuff + negBuff);	
 	if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then		
@@ -88,12 +112,6 @@ local function GetStatValue(base, posBuff, negBuff)
 			return GREEN_FONT_COLOR_CODE..effective..FONT_COLOR_CODE_CLOSE;
 		end
 	end	
-end
-
-local function GetStatTooltipDetailText(name, base, posBuff, negBuff)
-    if (name == "Attack Power") then
-        return "Increases your damage with melee weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
-    end
 end
 
 local function GetStatTooltipText(name, base, posBuff, negBuff)
@@ -116,14 +134,15 @@ local function GetStatTooltipText(name, base, posBuff, negBuff)
 		end
     end
     
-    local tooltipRow2 = GetStatTooltipDetailText(name, base, posBuff, negBuff);
+    local tooltipRow2 = AS_GetStatTooltipDetailText(name, base, posBuff, negBuff);
 	return tooltipRow1, tooltipRow2;
 end
 
 -- ///////////ATTRIBUTE SPECIFIC STUFF///////////
 
+-- All these tables assume level 60.
 local INT_PER_SPELLCRIT = {     
-    PALADIN = 54,
+    PALADIN = 54, -- This is controversial. Some old posts claim 29.5, but I'm skeptical.
     WARLOCK = 60.6,
     DRUID = 60.0,
     SHAMAN = 59.5,
@@ -465,6 +484,33 @@ end
 
 -- ///////////END SPELL SPECIFIC STUFF///////////
 
+-- ///////////DEFENSES SPECIFIC STUFF HERE///////////
+
+local function GetArmorDetailText(base, posBuff, negBuff)
+    local playerLevel = UnitLevel("player");
+    local effectiveArmor = base + posBuff + negBuff;
+    -- Some serious magic, taken straight form Blizzard's PaperDoll code
+    local armorReduction = effectiveArmor/((85 * playerLevel) + 400);
+	armorReduction = 100 * (armorReduction/(armorReduction + 1));
+    return "Reduces physical damage taken from level "..playerLevel.. " enemies by "..format("%.2F", armorReduction).."%";
+end
+
+local function GetDefenseDetailText(base, posBuff, negBuff)
+    local playerLevel = UnitLevel("player");
+    local effectiveDefense = base + posBuff + negBuff;
+    
+    local maxSkillForLevel = playerLevel * 5;
+    local bonusSkill = effectiveDefense - maxSkillForLevel;
+    local percentBonusText = format("%.2F", bonusSkill * .04).."%";
+    local detailText = "Reduces your chance to be hit or crit, and increases your chance to block, dodge, and parry by "..percentBonusText.." againt a "..playerLevel.. " enemy";
+
+    local dazeReductionText = format("%.2F", bonusSkill * .16); -- Not certain about this value.
+    detailText = detailText.."\nIn addition, reduces your chance to be dazed by "..dazeReductionText;
+    return detailText;
+end
+
+-- ///////////END DEFENSES SPECIFIC STUFF///////////
+
 function CharacterFrameTab6_OnLoad(self)        
     -- Make sure the CharacterFrame iterates through our Frame when doing Tab stuff
     PanelTemplates_SetNumTabs(CharacterFrame, CharacterFrame.numTabs + 1);    
@@ -668,28 +714,45 @@ end
 
 function AnachronismStatsFrame_SetDefenses(playerLevel)
 
-    -- UnitDefense("player") is broken, use the below instead
+    -- Armor
+    local armorFrame = AS_DefensesLabelFrame1;
+    local base, effectiveArmor, armor, posBuff, negBuff = UnitArmor("player");
+    local armorText = GetStatValue(base, posBuff, negBuff);
+    armorFrame.ValueFrame.Value:SetText(armorText);
+    armorFrame.tooltipRow1, armorFrame.tooltipRow2  = GetStatTooltipText(armorFrame.name, base, posBuff, negBuff);
 
-    -- local numSkills = GetNumSkillLines();
-	-- local skillIndex = 0;
+    -- Defense
+    local defenseFrame = AS_DefensesLabelFrame2;
+    local defenseValue, defenseModifier = GetDefenseValues();
+    local defenseText = GetStatValue(defenseValue, defenseModifier, 0);
+    defenseFrame.ValueFrame.Value:SetText(defenseText);
+    defenseFrame.tooltipRow1, defenseFrame.tooltipRow2 = GetStatTooltipText(defenseFrame.name, defenseValue, defenseModifier, 0);
 
-	-- for i = 1, numSkills do
-	-- 	local skillName = select(1, GetSkillLineInfo(i));
+    -- Block
+    local blockFrame = AS_DefensesLabelFrame3;
+    local blockChance = GetBlockChance();
+    local blockChanceText = format("%.2F", blockChance).."%";
+    local blockValue = GetShieldBlock();
+    blockFrame.ValueFrame.Value:SetText(blockChanceText);
+    blockFrame.tooltipRow1 = "Block Chance "..blockChanceText;
+    blockFrame.tooltipRow2 = "Increases your chance to block "..blockValue.." damage by "..blockChanceText.." against level "..playerLevel.." targets";
 
-	-- 	if (skillName == DEFENSE) then
-	-- 		skillIndex = i;
-	-- 		break;
-	-- 	end
-	-- end
+    -- Dodge
+    local dodgeFrame = AS_DefensesLabelFrame4;
+    local dodgeChance = GetDodgeChance();
+    local dodgeChanceText = format("%.2F", dodgeChance).."%";
+    dodgeFrame.ValueFrame.Value:SetText(dodgeChanceText);
+    dodgeFrame.tooltipRow1 = "Dodge Chance "..dodgeChanceText;
+    dodgeFrame.tooltipRow2 = "Increases your chance to dodge by "..dodgeChanceText.." against level "..playerLevel.." targets";
 
-	-- local skillRank, skillModifier;
-	-- if (skillIndex > 0) then
-	-- 	skillRank = select(4, GetSkillLineInfo(skillIndex));
-	-- 	skillModifier = select(6, GetSkillLineInfo(skillIndex));
-	-- else
-	-- 	-- Use this as a backup, just in case something goes wrong
-	-- 	skillRank, skillModifier = UnitDefense(unit); --Not working properly
-	-- end
+    -- Parry
+    local parryFrame = AS_DefensesLabelFrame5;
+    local parryChance = GetParryChance();
+    local parryChanceText = format("%.2F", parryChance).."%";
+    parryFrame.ValueFrame.Value:SetText(parryChanceText);
+    parryFrame.tooltipRow1 = "Parry Chance "..parryChanceText;
+    parryFrame.tooltipRow2 = "Increases your chance to parry by "..parryChanceText.." against level "..playerLevel.." targets";
+
 end
 
 function AS_ShowStatTooltip(self)
@@ -709,4 +772,14 @@ function AS_ShowStatTooltip(self)
         GameTooltip:AddLine(self.tooltipRow2, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true);
     end
     GameTooltip:Show();
+end
+
+function AS_GetStatTooltipDetailText(name, base, posBuff, negBuff)
+    if (name == "Attack Power") then
+        return "Increases your damage with melee weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
+    elseif (name == "Armor") then
+        return GetArmorDetailText(base, posBuff, negBuff);
+    elseif (name == "Defense") then
+        return GetDefenseDetailText(base, posBuff, negBuff);
+    end
 end
