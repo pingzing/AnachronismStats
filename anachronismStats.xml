@@ -516,7 +516,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
                         <Scripts>
                             <OnLoad>
                                 self.Label:SetText("Power:");
-                                self.name = "Attack Power";
+                                self.name = "Ranged Attack Power";
                             </OnLoad>
                         </Scripts>
                     </Frame>

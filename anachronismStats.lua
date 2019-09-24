@@ -54,6 +54,13 @@ local function OffhandHasWeapon()
     return itemType=="Weapon";
 end
 
+local function HasRanged()
+    local hasRelic = UnitHasRelicSlot("player");
+    -- Seriously. This is how the official Blizzard PaperDoll does it. It checks for a texture in item slot 18.
+    local rangedTexture = GetInventoryItemTexture("player", 18);
+    return (not(hasRelic) and rangedTexture);
+end
+
 local function GetPercentRegenWhileCasting(class)
     -- We need to check three possible talents:
     -- Meditation (Priest), Arcane Meditation (Mage), Reflection (Druid).
@@ -432,8 +439,8 @@ local function GetWeaponSkillDetails(mainBase, mainMod, hasOffhand, offBase, off
     local bonusSkillMain = mainBase - maxSkillForLevel;
     local bonusSkillOff = offBase - maxSkillForLevel;
 
-    local mainPercentBonus = format("%.2F", bonusSkillMain * .04).."%";
-    local offPercentBonus = format("%.2F", bonusSkillOff * 0.4).."%";
+    local mainPercentBonus = format("%.2F", max(0, bonusSkillMain * .04)).."%";
+    local offPercentBonus = format("%.2F", max(0, bonusSkillOff * 0.4)).."%";
     wepSkillTooltipRow2 = "Increases your chance to hit and crit, and reduce chance to be blocked, dodged or parried by "..mainPercentBonus;
     if (hasOffhand) then
         wepSkillTooltipRow2 = wepSkillTooltipRow2.." / "..offPercentBonus;
@@ -448,6 +455,100 @@ local function GetWeaponSkillDetails(mainBase, mainMod, hasOffhand, offBase, off
 end
 
 -- ///////////END MELEE SPECIFIC STUFF///////////
+
+-- RANGED SPECIFIC STUFF
+
+local function FillOutRangedDamageFarme(rangedDamageFrame)
+
+    if (not (HasRanged())) then
+        rangedDamageFrame.ValueFrame.Value:SetText("N/A");
+        return rangedDamageFrame;
+    end
+
+    local rangedAttackSpeed, minDamage, maxDamage, physicalBonusPos, physicalBonusNeg, percent = UnitRangedDamage("player");
+	local displayMin = max(floor(minDamage),1);
+    local displayMax = max(ceil(maxDamage),1);
+    
+    minDamage = (minDamage / percent) - physicalBonusPos - physicalBonusNeg;
+    maxDamage = (maxDamage / percent) - physicalBonusPos - physicalBonusNeg;
+    
+    local baseDamage = (minDamage + maxDamage) * 0.5;
+	local fullDamage = (baseDamage + physicalBonusPos + physicalBonusNeg) * percent;
+	local totalBonus = (fullDamage - baseDamage);
+	local damagePerSecond = (max(fullDamage,1) / rangedAttackSpeed);
+    local tooltip = max(floor(minDamage),1).." - "..max(ceil(maxDamage),1);
+    
+    if ( totalBonus == 0 ) then
+		if ( ( displayMin < 100 ) and ( displayMax < 100 ) ) then 
+			rangedDamageFrame.ValueFrame.Value:SetText(displayMin.." - "..displayMax);	
+		else
+			rangedDamageFrame.ValueFrame.Value:SetText(displayMin.."-"..displayMax);
+		end
+	else
+		local colorPos = "|cff20ff20";
+		local colorNeg = "|cffff2020";
+		local color;
+		if ( totalBonus > 0 ) then
+			color = colorPos;
+		else
+			color = colorNeg;
+		end
+		if ( ( displayMin < 100 ) and ( displayMax < 100 ) ) then 
+			rangedDamageFrame.ValueFrame.Value:SetText(color..displayMin.." - "..displayMax.."|r");	
+		else
+			rangedDamageFrame.ValueFrame.Value:SetText(color..displayMin.."-"..displayMax.."|r");
+		end
+		if ( physicalBonusPos > 0 ) then
+			rangedDamageFrame.tooltip = rangedDamageFrame.tooltip..colorPos.." +"..physicalBonusPos.."|r";
+		end
+		if ( physicalBonusNeg < 0 ) then
+			rangedDamageFrame.tooltip = rangedDamageFrame.tooltip..colorNeg.." "..physicalBonusNeg.."|r";
+		end
+		if ( percent > 1 ) then
+			rangedDamageFrame.tooltip = rangedDamageFrame.tooltip..colorPos.." x"..floor(percent*100+0.5).."%|r";
+		elseif ( percent < 1 ) then
+			rangedDamageFrame.tooltip = rangedDamageFrame.tooltip..colorNeg.." x"..floor(percent*100+0.5).."%|r";
+		end
+		rangedDamageFrame.tooltip = rangedDamageFrame.tooltip.." "..format(DPS_TEMPLATE, damagePerSecond);
+    end
+
+    rangedDamageFrame.attackSpeed = rangedAttackSpeed;
+	rangedDamageFrame.damage = tooltip;
+	rangedDamageFrame.dps = damagePerSecond;
+    
+    return rangedDamageFrame;
+end
+
+local function ShowRangedDamageTooltip(self)
+    if (not(HasRanged())) then
+        return;
+    end
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+	GameTooltip:SetText("Ranged Damage", HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+	GameTooltip:AddDoubleLine(ATTACK_SPEED_COLON, format("%.2F", self.attackSpeed), NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+	GameTooltip:AddDoubleLine(DAMAGE_COLON, self.damage, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+	GameTooltip:AddDoubleLine(DAMAGE_PER_SECOND, format("%.1F", self.dps), NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+	GameTooltip:Show();
+end
+
+local function GetRangedWeaponSkillDetails(skillBase, skillMod, playerLevel)
+    local wepSkillText;
+    local wepSkillTooltipRow1;
+    local wepSkillTooltipRow2;
+
+    wepSkillText = GetStatValue(skillBase, skillMod, 0)
+    wepSkillTooltipRow1 = GetStatTooltipText("Ranged Weapon Skill", skillBase, skillMod, 0);
+
+    local maxSkillForLevel = playerLevel * 5;
+    -- These might be negative.
+    local bonusSkill = skillBase - maxSkillForLevel;
+    local percentBonus = format("%.2F", bonusSkill * .04).."%";
+    wepSkillTooltipRow2 = "Increases the chanec for your ranged attacks chance to hit and crit, and reduces their chance to be blocked by "..percentBonus.." by a level "..playerLevel.." enemy";
+
+    return wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2;
+end
+
+-- END RANGED SPECIFIC STUFF
 
 -- ///////////SPELL SPECIFIC STUFF///////////
 local SPELL_SCHOOL_NAMES = {
@@ -501,10 +602,10 @@ local function GetDefenseDetailText(base, posBuff, negBuff)
     
     local maxSkillForLevel = playerLevel * 5;
     local bonusSkill = effectiveDefense - maxSkillForLevel;
-    local percentBonusText = format("%.2F", bonusSkill * .04).."%";
+    local percentBonusText = format("%.2F", max(0, bonusSkill * .04)).."%";
     local detailText = "Reduces your chance to be hit or crit, and increases your chance to block, dodge, and parry by "..percentBonusText.." againt a "..playerLevel.. " enemy";
 
-    local dazeReductionText = format("%.2F", bonusSkill * .16); -- Not certain about this value.
+    local dazeReductionText = format("%.2F", max(0, bonusSkill * .16)); -- Not certain about this value.
     detailText = detailText.."\nReduces your chance to be dazed by a level "..playerLevel.." enemy by "..dazeReductionText.."%";
     return detailText;
 end
@@ -663,6 +764,68 @@ function AnachronismStatsFrame_SetMelee(playerLevel)
 end
 
 function AnachronismStatsFrame_SetRanged(playerLevel)
+    local _, classFileName = UnitClass("player");
+    if (not(HasRanged())) then
+        -- Fill out everything with N/A. Druids, Paladins and Shamans off the table immediately.
+        rangedSpeedFrame.ValueFrame.Value:SetText("N/A");
+        rangedPowerFrame.ValueFrame.Value:SetText("N/A");
+    end
+
+    -- Damage
+    local rangedDamageFrame = AS_RangedLabelFrame1;
+    rangedDamageFrame = FillOutRangedDamageFarme(rangedDamageFrame);
+    rangedDamageFrame.tooltipSpecialCase = ShowRangedDamageTooltip;
+
+    -- Speed
+    local rangedSpeedFrame = AS_RangedLabelFrame2;
+    local rangedAttackSpeed, _, _, _, _, _ = UnitRangedDamage("player");
+    local hastePercent = GetRangedHaste();
+    local speedText = format("%.2F", rangedAttackSpeed);
+    if (hastePercent == 0) then
+        rangedSpeedFrame.ValueFrame.Value:SetText(speedText);
+    elseif (hastePercent > 0) then
+        speedText = GREEN_FONT_COLOR_CODE..speedText..FONT_COLOR_CODE_CLOSE;
+    elseif (hastePercent < 0) then
+        speedText = RED_FONT_COLOR_CODE..speedText..FONT_COLOR_CODE_CLOSE;
+    end
+    rangedSpeedFrame.ValueFrame.Value:SetText(speedText);
+    rangedSpeedFrame.tooltipRow1 = "Ranged Attack Speed "..speedText;
+    rangedSpeedFrame.tooltipRow2 = "Haste: "..format("%.2F", hastePercent).."%";
+
+    -- Ranged Attack Power
+    local rangedPowerFrame = AS_RangedLabelFrame3;
+    -- Mages, Priests and Warlocks use wands, which don't benefit from RAP
+    if (classFileName == CLASSES.Warlock or classFileName == CLASSES.Priest or classFileName == CLASSES.Mage) then
+        rangedPowerFrame.ValueFrame.Value:SetText("--");
+    else
+        local base, posBuff, negBuff = UnitRangedAttackPower("player");
+        rangedPowerFrame.ValueFrame.Value:SetText(GetStatValue(base, posBuff, negBuff));
+        rangedPowerFrame.tooltipRow1, rangedPowerFrame.tooltipRow2 = GetStatTooltipText(rangedPowerFrame.name, base, posBuff, negBuff);
+    end
+
+    -- Ranged Hit Chance
+    local rangedHitFrame = AS_RangedLabelFrame4;    
+    local hitFromGear = GetHitModifier(); -- Seems to be the same API for ranged and melee?
+    -- TODO: Get hit from talents (and Weapon skill?) too
+    rangedHitFrame.ValueFrame.Value:SetText(hitFromGear.."%");
+    rangedHitFrame.tooltipRow1 = "Ranged Hit Chance "..hitFromGear.."%";
+    rangedHitFrame.tooltipRow2 = "Increases your ranged chance to hit a target of level "..playerLevel.." by "..hitFromGear.."%";
+
+    -- Ranged Crit
+    local rangedCritFrame = AS_RangedLabelFrame5;
+    local rangedCrit = GetRangedCritChance();
+    local critText = format("%.2F", rangedCrit).."%";
+    rangedCritFrame.ValueFrame.Value:SetText(critText);
+    rangedCritFrame.tooltipRow1 = "Ranged Critical Hit Chance "..critText;
+    rangedCritFrame.tooltipRow2 = "Increases your ranged chance to crit a target of level "..playerLevel.." by "..critText;
+
+    -- Ranged weapon skill
+    local rangedWepSkillFrame = AS_RangedLabelFrame6;
+    local rangedAttackBase, rangedAttackMod = UnitRangedAttack("player");
+    local wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2 = GetRangedWeaponSkillDetails(rangedAttackBase, rangedAttackMod, playerLevel);
+    rangedWepSkillFrame.ValueFrame.Value:SetText(wepSkillText);
+    rangedWepSkillFrame.tooltipRow1 = wepSkillTooltipRow1;
+    rangedWepSkillFrame.tooltipRow2 = wepSkillTooltipRow2;
 end
 
 function AnachronismStatsFrame_SetSpell(playerLevel)
@@ -699,12 +862,11 @@ function AnachronismStatsFrame_SetSpell(playerLevel)
     local manaRegenFrame = AS_SpellLabelFrame5;
     local _, classFileName = UnitClass("player");
     if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Warrior) then
-        manaRegenFrame.ValueFrame.Value:SetText("-");
+        manaRegenFrame.ValueFrame.Value:SetText("--");
         manaRegenFrame.tooltipRow1 = "Mana Regeneration 0";
         manaRegenFrame.tooltipRow2 = "You have no mana. Why are you here?";
     else
-        -- GetManaRegen("player") just returns regen at-the-moment, so we 
-        -- have to calculate all this ourselves.
+        -- GetManaRegen("player") just returns regen at-the-moment, so we have to calculate all this ourselves.
         -- Also note: GetManaRegen() does not seem to include temporary regen-while-casting buffs, like Soul Siphon from Improved Drain Soul
         -- Possible TODO: Somehow calculate all other sources of MP5. How? Manual list of whitelisted buff IDs?
         -- Would need all possible short-term +Mana Regen, "Allow regen while casting" and +MP5 buffs. Eugh.
@@ -788,5 +950,7 @@ function AS_GetStatTooltipDetailText(name, base, posBuff, negBuff)
         return GetArmorDetailText(base, posBuff, negBuff);
     elseif (name == "Defense") then
         return GetDefenseDetailText(base, posBuff, negBuff);
+    elseif (name == "Ranged Attack Power") then
+        return "Increases your damage with ranged weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
     end
 end
