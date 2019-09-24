@@ -36,9 +36,9 @@ local function GetMp5FromSpirit(spirit, class)
     --Druids, shamans, paladins, hunters: 15 + (spirit / 5) mana per tick
     elseif (class == CLASSES.Druid or class == CLASSES.Shaman or class == CLASSES.Paladin or class == CLASSES.Hunter) then
         return (15 + (spirit / 5)) * 2.5;
-    --Warlocks: 8 + (spirit / 4) mana per tick
+    --Warlocks: 12 + (spirit / 4) mana per tick (Historical data claims 8 + spir..., but actual testing seems to imply 12? maybe it changes at level 60)
     elseif (class == CLASSES.Warlock) then
-        return (8 + (spirit / 4)) * 2.5;
+        return (12 + (spirit / 4)) * 2.5;
     else
         return 0;
     end
@@ -505,7 +505,7 @@ local function GetDefenseDetailText(base, posBuff, negBuff)
     local detailText = "Reduces your chance to be hit or crit, and increases your chance to block, dodge, and parry by "..percentBonusText.." againt a "..playerLevel.. " enemy";
 
     local dazeReductionText = format("%.2F", bonusSkill * .16); -- Not certain about this value.
-    detailText = detailText.."\nIn addition, reduces your chance to be dazed by "..dazeReductionText;
+    detailText = detailText.."\nReduces your chance to be dazed by a level "..playerLevel.." enemy by "..dazeReductionText.."%";
     return detailText;
 end
 
@@ -546,6 +546,8 @@ function AnachronismStatsFrame_OnLoad(self)
 	self:RegisterEvent("UNIT_ATTACK");	
     self:RegisterEvent("SKILL_LINES_CHANGED");
     self:RegisterEvent("UPDATE_SHAPESHIFT_FORMS");
+    self:RegisterEvent("UNIT_AURA");
+    self:RegisterEvent("UNIT_POWER_UPDATE");
     
     -- Queue one initial update
     self:SetScript("OnUpdate", AnachronismStatsFrame_QueuedUpdate);
@@ -560,7 +562,7 @@ function AnachronismStatsFrame_OnLoad(self)
 end
 
 function AnachronismStatsFrame_OnEvent(self, event, ...)
-    local unit = ...;    
+    local unit = ...;        
     if ( unit ~= "player") then
         return;
     end
@@ -693,6 +695,7 @@ function AnachronismStatsFrame_SetSpell(playerLevel)
     spellCritFrame.tooltipSpecialCase = SpellSpellCritTooltip;
 
     -- Mana regen
+    -- Note that this is "Regen right this second", as retreived by GetManaRegen("player").
     local manaRegenFrame = AS_SpellLabelFrame5;
     local _, classFileName = UnitClass("player");
     if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Warrior) then
@@ -702,13 +705,17 @@ function AnachronismStatsFrame_SetSpell(playerLevel)
     else
         -- GetManaRegen("player") just returns regen at-the-moment, so we 
         -- have to calculate all this ourselves.
+        -- Also note: GetManaRegen() does not seem to include temporary regen-while-casting buffs, like Soul Siphon from Improved Drain Soul
         -- Possible TODO: Somehow calculate all other sources of MP5. How? Manual list of whitelisted buff IDs?
+        -- Would need all possible short-term +Mana Regen, "Allow regen while casting" and +MP5 buffs. Eugh.
         local _, spirit, _, _ = UnitStat("player", 5);
+        local _, mp5RightNow = GetManaRegen("player");
+        local mp5RightNowText = format("%.0F", mp5RightNow * 5);
         local mp5FromSpirit = floor(GetMp5FromSpirit(spirit, classFileName));
         local percentWhileCasting = GetPercentRegenWhileCasting(classFileName);
-        manaRegenFrame.ValueFrame.Value:SetText(mp5FromSpirit);
-        manaRegenFrame.tooltipRow1 = "Mana Regeneration "..mp5FromSpirit;
-        manaRegenFrame.tooltipRow2 = mp5FromSpirit.." mana regenerated every 5 seconds while not casting\n"..(floor(mp5FromSpirit * (percentWhileCasting / 100))).." mana regenerated every 5 seconds while casting\n*Note this does not account for MP/5 buffs";
+        manaRegenFrame.ValueFrame.Value:SetText(mp5RightNowText);
+        manaRegenFrame.tooltipRow1 = "Mana Regeneration "..mp5RightNowText;
+        manaRegenFrame.tooltipRow2 = mp5RightNowText.." mana regen every 5 seconds at this moment\n"..mp5FromSpirit.." mana regenerated every 5 seconds while not casting (from Spirit)\n"..(floor(mp5FromSpirit * (percentWhileCasting / 100))).." mana regenerated every 5 seconds while casting (from Spirit)";
     end
 end
 
