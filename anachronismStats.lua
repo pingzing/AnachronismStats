@@ -740,7 +740,7 @@ function AnachronismStatsFrame_SetMelee(playerLevel)
     -- Hit Chance
     local hitFrame = AS_MeleeLabelFrame4;
     local hitFromGear = GetHitModifier();
-    -- TODO: Get hit from talents (and Defense skill?) too
+    -- TODO: Get hit from talents and weapon skill, and show main/off in tooltip and ValueFrame.
     hitFrame.ValueFrame.Value:SetText(hitFromGear.."%");
     hitFrame.tooltipRow1 = "Hit Chance "..hitFromGear.."%";
     hitFrame.tooltipRow2 = "Increases your melee chance to hit a target of level "..playerLevel.." by "..hitFromGear.."%";
@@ -748,6 +748,8 @@ function AnachronismStatsFrame_SetMelee(playerLevel)
     -- Crit chance
     local critFrame = AS_MeleeLabelFrame5;
     local critChance = GetCritChance();
+    -- TODO: Get crit from weapon skill. Change ValueFrame and tooltip to show main/off.
+    -- ALSO TODO: Get crit for per-weapon talents. Lotta classes have those.
     local critText = format("%.2F", critChance).."%";
     critFrame.ValueFrame.Value:SetText(critText);
     critFrame.tooltipRow1 = "Critical Hit Chance "..critText;
@@ -814,13 +816,14 @@ function AnachronismStatsFrame_SetRanged(playerLevel)
 
     -- Ranged Hit Chance       
     local hitFromGear = GetHitModifier(); -- Seems to be the same API for ranged and melee?
-    -- TODO: Get hit from talents (and Weapon skill?) too
+    -- TODO: Get hit from talents and Weapon skill too
     rangedHitFrame.ValueFrame.Value:SetText(hitFromGear.."%");
     rangedHitFrame.tooltipRow1 = "Ranged Hit Chance "..hitFromGear.."%";
     rangedHitFrame.tooltipRow2 = "Increases your ranged chance to hit a target of level "..playerLevel.." by "..hitFromGear.."%";
 
     -- Ranged Crit    
     local rangedCrit = GetRangedCritChance();
+    -- TODO: Get crit from weapon skill (and talents? Are there any?)
     local critText = format("%.2F", rangedCrit).."%";
     rangedCritFrame.ValueFrame.Value:SetText(critText);
     rangedCritFrame.tooltipRow1 = "Ranged Critical Hit Chance "..critText;
