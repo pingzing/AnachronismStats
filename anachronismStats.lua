@@ -440,7 +440,7 @@ local function GetWeaponSkillDetails(mainBase, mainMod, hasOffhand, offBase, off
     local bonusSkillOff = offBase - maxSkillForLevel;
 
     local mainPercentBonus = format("%.2F", max(0, bonusSkillMain * .04)).."%";
-    local offPercentBonus = format("%.2F", max(0, bonusSkillOff * 0.4)).."%";
+    local offPercentBonus = format("%.2F", max(0, bonusSkillOff * .04)).."%";
     wepSkillTooltipRow2 = "Increases your chance to hit and crit, and reduce chance to be blocked, dodged or parried by "..mainPercentBonus;
     if (hasOffhand) then
         wepSkillTooltipRow2 = wepSkillTooltipRow2.." / "..offPercentBonus;
@@ -765,19 +765,29 @@ end
 
 function AnachronismStatsFrame_SetRanged(playerLevel)
     local _, classFileName = UnitClass("player");
+    local rangedDamageFrame = AS_RangedLabelFrame1;
+    local rangedSpeedFrame = AS_RangedLabelFrame2;
+    local rangedPowerFrame = AS_RangedLabelFrame3;
+    local rangedHitFrame = AS_RangedLabelFrame4; 
+    local rangedCritFrame = AS_RangedLabelFrame5;
+    local rangedWepSkillFrame = AS_RangedLabelFrame6;
+
     if (not(HasRanged())) then
         -- Fill out everything with N/A. Druids, Paladins and Shamans off the table immediately.
+        rangedDamageFrame.ValueFrame.Value:SetText("N/A");
         rangedSpeedFrame.ValueFrame.Value:SetText("N/A");
         rangedPowerFrame.ValueFrame.Value:SetText("N/A");
+        rangedHitFrame.ValueFrame.Value:SetText("N/A");
+        rangedCritFrame.ValueFrame.Value:SetText("N/A");
+        rangedWepSkillFrame.ValueFrame.Value:SetText("N/A");
+        return;
     end
 
-    -- Damage
-    local rangedDamageFrame = AS_RangedLabelFrame1;
+    -- Damage    
     rangedDamageFrame = FillOutRangedDamageFarme(rangedDamageFrame);
     rangedDamageFrame.tooltipSpecialCase = ShowRangedDamageTooltip;
 
-    -- Speed
-    local rangedSpeedFrame = AS_RangedLabelFrame2;
+    -- Speed    
     local rangedAttackSpeed, _, _, _, _, _ = UnitRangedDamage("player");
     local hastePercent = GetRangedHaste();
     local speedText = format("%.2F", rangedAttackSpeed);
@@ -792,8 +802,7 @@ function AnachronismStatsFrame_SetRanged(playerLevel)
     rangedSpeedFrame.tooltipRow1 = "Ranged Attack Speed "..speedText;
     rangedSpeedFrame.tooltipRow2 = "Haste: "..format("%.2F", hastePercent).."%";
 
-    -- Ranged Attack Power
-    local rangedPowerFrame = AS_RangedLabelFrame3;
+    -- Ranged Attack Power    
     -- Mages, Priests and Warlocks use wands, which don't benefit from RAP
     if (classFileName == CLASSES.Warlock or classFileName == CLASSES.Priest or classFileName == CLASSES.Mage) then
         rangedPowerFrame.ValueFrame.Value:SetText("--");
@@ -803,24 +812,21 @@ function AnachronismStatsFrame_SetRanged(playerLevel)
         rangedPowerFrame.tooltipRow1, rangedPowerFrame.tooltipRow2 = GetStatTooltipText(rangedPowerFrame.name, base, posBuff, negBuff);
     end
 
-    -- Ranged Hit Chance
-    local rangedHitFrame = AS_RangedLabelFrame4;    
+    -- Ranged Hit Chance       
     local hitFromGear = GetHitModifier(); -- Seems to be the same API for ranged and melee?
     -- TODO: Get hit from talents (and Weapon skill?) too
     rangedHitFrame.ValueFrame.Value:SetText(hitFromGear.."%");
     rangedHitFrame.tooltipRow1 = "Ranged Hit Chance "..hitFromGear.."%";
     rangedHitFrame.tooltipRow2 = "Increases your ranged chance to hit a target of level "..playerLevel.." by "..hitFromGear.."%";
 
-    -- Ranged Crit
-    local rangedCritFrame = AS_RangedLabelFrame5;
+    -- Ranged Crit    
     local rangedCrit = GetRangedCritChance();
     local critText = format("%.2F", rangedCrit).."%";
     rangedCritFrame.ValueFrame.Value:SetText(critText);
     rangedCritFrame.tooltipRow1 = "Ranged Critical Hit Chance "..critText;
     rangedCritFrame.tooltipRow2 = "Increases your ranged chance to crit a target of level "..playerLevel.." by "..critText;
 
-    -- Ranged weapon skill
-    local rangedWepSkillFrame = AS_RangedLabelFrame6;
+    -- Ranged weapon skill    
     local rangedAttackBase, rangedAttackMod = UnitRangedAttack("player");
     local wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2 = GetRangedWeaponSkillDetails(rangedAttackBase, rangedAttackMod, playerLevel);
     rangedWepSkillFrame.ValueFrame.Value:SetText(wepSkillText);
