@@ -552,7 +552,7 @@ end
 
 -- ///////////SPELL SPECIFIC STUFF///////////
 local SPELL_SCHOOL_NAMES = {
-    [1] = "Normal",
+    [1] = "Physical",
     [2] = "Holy",
     [3] = "Fire",
     [4] = "Nature",
@@ -840,9 +840,16 @@ end
 function AnachronismStatsFrame_SetSpell(playerLevel)
     -- Damage
     local spellDamageFrame = AS_SpellLabelFrame1;
-    local normalSpellDamage = GetSpellBonusDamage(1);
-    spellDamageFrame.normalSpellDamage = normalSpellDamage;
-    spellDamageFrame.ValueFrame.Value:SetText(normalSpellDamage);
+    local highestSpellDamage, highestSchoolIndex = 0, 1;
+    for i=2,7 do        
+        local schoolDamage = GetSpellBonusDamage(i);
+        if (schoolDamage > highestSpellDamage) then
+            highestSpellDamage = schoolDamage;
+            highestSchoolIndex = i;
+        end
+    end    
+    spellDamageFrame.normalSpellDamage = highestSpellDamage;
+    spellDamageFrame.ValueFrame.Value:SetText(highestSpellDamage);
     spellDamageFrame.tooltipSpecialCase = SpellSpellDamageTooltip;
 
     -- Healing
