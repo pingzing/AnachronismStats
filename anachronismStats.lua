@@ -499,17 +499,17 @@ local function FillOutRangedDamageFarme(rangedDamageFrame)
 			rangedDamageFrame.ValueFrame.Value:SetText(color..displayMin.."-"..displayMax.."|r");
 		end
 		if ( physicalBonusPos > 0 ) then
-			rangedDamageFrame.tooltip = rangedDamageFrame.tooltip..colorPos.." +"..physicalBonusPos.."|r";
+			rangedDamageFrame.tooltip = tooltip..colorPos.." +"..physicalBonusPos.."|r";
 		end
 		if ( physicalBonusNeg < 0 ) then
-			rangedDamageFrame.tooltip = rangedDamageFrame.tooltip..colorNeg.." "..physicalBonusNeg.."|r";
+			rangedDamageFrame.tooltip = tooltip..colorNeg.." "..physicalBonusNeg.."|r";
 		end
 		if ( percent > 1 ) then
-			rangedDamageFrame.tooltip = rangedDamageFrame.tooltip..colorPos.." x"..floor(percent*100+0.5).."%|r";
+			rangedDamageFrame.tooltip = tooltip..colorPos.." x"..floor(percent*100+0.5).."%|r";
 		elseif ( percent < 1 ) then
-			rangedDamageFrame.tooltip = rangedDamageFrame.tooltip..colorNeg.." x"..floor(percent*100+0.5).."%|r";
+			rangedDamageFrame.tooltip = tooltip..colorNeg.." x"..floor(percent*100+0.5).."%|r";
 		end
-		rangedDamageFrame.tooltip = rangedDamageFrame.tooltip.." "..format(DPS_TEMPLATE, damagePerSecond);
+		rangedDamageFrame.tooltip = tooltip.." "..format(DPS_TEMPLATE, damagePerSecond);
     end
 
     rangedDamageFrame.attackSpeed = rangedAttackSpeed;
