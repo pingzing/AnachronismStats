@@ -12,22 +12,8 @@ local CLASSES = {
     Hunter = "HUNTER",
  };
 
-local base_OnClick = CharacterFrameTab_OnClick;
 local base_ShowSubFrame = CharacterFrame_ShowSubFrame;
-
-local function cPrint(text)
-    DEFAULT_CHAT_FRAME:AddMessage(text);
-end
-
-local function ShowAnachronismStatsFrame()
-    -- Hide all other frames...
-    for _, value in pairs(DEFAULT_SUBFRAMES) do
-        _G[value]:Hide();
-    end    
-    
-    -- ...and show ours.
-    AnachronismStatsFrame:Show();
-end
+local isOpen = false;
 
 local function GetMp5FromSpirit(spirit, class)
     --Priests and mages: 13 + (spirit / 4) mana per tick
@@ -612,29 +598,48 @@ end
 
 -- ///////////END DEFENSES SPECIFIC STUFF///////////
 
-function CharacterFrameTab6_OnLoad(self)        
-    -- Make sure the CharacterFrame iterates through our Frame when doing Tab stuff
-    PanelTemplates_SetNumTabs(CharacterFrame, CharacterFrame.numTabs + 1);    
-
-    -- Hook Tab_OnClick so we can listen for our tab button being clicked.
-    CharacterFrameTab_OnClick = function(self, button)
-        local name = self:GetName();
-        if ( name == "CharacterFrameTab6" ) then
-            ShowAnachronismStatsFrame();
-        end
-    
-        base_OnClick(self, button);
+local function SetASFrameVisible(visible)
+    if (visible) then
+        AnachronismStatsFrame:Show();
+        SquareButton_SetIcon(AS_OpenStats, "LEFT");
+        isOpen = true;
+    else
+        AnachronismStatsFrame:Hide();
+        SquareButton_SetIcon(AS_OpenStats, "RIGHT");
+        isOpen = false;
     end
 end
 
-function CharacterFrameTab6_OnHide(self)
+function AS_OpenStats_OnClick(self)
+    if (isOpen) then
+        SetASFrameVisible(false);
+    else
+        SetASFrameVisible(true);
+    end       
+end
+
+function AS_OpenStats_OnLoad(self)        
+    SquareButton_SetIcon(self, "RIGHT");
+end
+
+function AS_OpenStats_OnHide(self)
     -- Make sure we're not sitting in the background if this tab has focus
     -- when the character frame is closed.
-    AnachronismStatsFrame:Hide();
+    SetASFrameVisible(false);
+end
+
+function AnachronismStatsFrame_OnMouseWheel(self, delta)
+    local current = AnachronismStatsScrollFrame_VSlider:GetValue();
+    local _, maxValue = AnachronismStatsScrollFrame_VSlider:GetMinMaxValues();
+    if (delta < 0) and (current < maxValue) then
+        AnachronismStatsScrollFrame_VSlider:SetValue(current + 5);
+    elseif (delta > 0) and (current > 1) then
+        AnachronismStatsScrollFrame_VSlider:SetValue(current - 5);
+    end
 end
 
 function AnachronismStatsFrame_OnLoad(self)
-    AnachronismStatsFrame:Hide();    
+    SetASFrameVisible(false);    
 
 	self:RegisterEvent("UNIT_RESISTANCES");
 	self:RegisterEvent("UNIT_STATS");
@@ -653,10 +658,10 @@ function AnachronismStatsFrame_OnLoad(self)
     -- Queue one initial update
     self:SetScript("OnUpdate", AnachronismStatsFrame_QueuedUpdate);
 
-    -- Hook ShowSubFrame so that we get closed if any other frame gets opened.
+    -- Hook ShowSubFrame so that we get closed if any other tab gets opened.
     CharacterFrame_ShowSubFrame = function(frameName)        
-        if (frameName ~= AnachronismStatsFrame) then
-            AnachronismStatsFrame:Hide();
+        if (frameName ~= "PaperDollItemsFrame") then
+            SetASFrameVisible(false);
         end
         base_ShowSubFrame(frameName);
     end
