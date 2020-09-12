@@ -1,4 +1,3 @@
-local DEFAULT_SUBFRAMES = { "PaperDollFrame", "PetPaperDollFrame", "ReputationFrame", "SkillFrame", "HonorFrame" };
 local MAX_LEVEL = 60;
 local CLASSES = { 
     Warrior = "WARRIOR",
@@ -30,6 +29,41 @@ local function GetMp5FromSpirit(spirit, class)
     end
 end
 
+local equipmentSlots = {
+    1, -- head
+    2, -- neck
+    3, -- shoulders
+    15, -- cloak
+    5, -- chest
+    9, -- bracers
+    10, -- gloves
+    6, -- belt
+    7, -- pants
+    8, -- boots
+    11, -- ring 1
+    12, -- ring 2
+    13, -- trinket 1
+    14, -- trinket 2
+    16, -- main hand
+    17, -- off hand
+    18, -- ranged slot
+}
+local function GetMp5FromEquippedItems()
+    local summedMp5 = 0;
+    for _, slotId in ipairs(equipmentSlots) do
+        local itemId = GetInventoryItemID("player", slotId);
+        if (itemId ~= nil) then
+            local statsTable = {};
+            GetItemStats("item:"..itemId, statsTable); -- this fills the stats table
+            local mp5Value = statsTable['ITEM_MOD_POWER_REGEN0_SHORT'];
+            if (mp5Value ~= nil) then
+                summedMp5 = summedMp5 + 1 + mp5Value; -- for some reason, MP5 values are returned as 1 less than actual, so add 1
+            end
+        end
+    end    
+    return summedMp5;
+end
+
 local function OffhandHasWeapon()
     local link = GetInventoryItemLink("player", 17);
     if (not(link)) then
@@ -50,7 +84,8 @@ end
 local function GetPercentRegenWhileCasting(class)
     -- We need to check three possible talents:
     -- Meditation (Priest), Arcane Meditation (Mage), Reflection (Druid).
-    -- There are a handful of talented short-term buffs we could check too, but ehhhhhh
+    -- TODO: Should also check mage for Mage Armor
+    -- There are a handful of talented/trinket/set bonus/etc short-term buffs we could check too, but ehhhhhh
     if (class == CLASSES.Priest) then
         -- check for ranks of Meditation
         local _, _, _, _, ranks, _, _, _ = GetTalentInfo(1, 8);
@@ -204,6 +239,7 @@ local function GetAgilityDetailText(base, current, posBuff, negBuff, playerLevel
     -- Crit chance
     -- The operative guess here is that the level coefficient is just (currLevel / maxLevel) * AGI_PER_CRIT (which is the level 60 value)
     -- That's almost certainly wrong, but it seems to be Good Enough(tm).
+    -- TODO: Bet I could dig out an old copy of RatingBuster and see what it did (provided formulas didn't change between 1.12 and 2.4.3)
     local agiPerCrit = (playerLevel / MAX_LEVEL) * AGI_PER_CRIT[classFileName];
     agiDetailText = agiDetailText.."Increases melee and ranged crit chance by ~"..format("%.2F", (current / agiPerCrit)).."%\n";
 
@@ -253,7 +289,7 @@ local function GetSpiritDetailText(base, current, posBuff, negBuff, playerLevel)
 
     -- GetManaRegen("player") just returns regen at-the-moment, so we 
     -- have to calculate all this ourselves.
-    local mp5FromSpirit = GetMp5FromSpirit(current, classFileName);
+    local mp5FromSpirit = GetMp5FromSpirit(current, classFileName);    
     local percentWhileCasting = GetPercentRegenWhileCasting(classFileName);
     local spiritDetailText = "Increases your mana regeneration by "..floor(mp5FromSpirit).." per 5 seconds while not casting\n";
     spiritDetailText = spiritDetailText.."Increases your mana regeneration by "..(floor(mp5FromSpirit * (percentWhileCasting / 100))).." per 5 seconds while casting";
@@ -588,11 +624,13 @@ local function GetDefenseDetailText(base, posBuff, negBuff)
     
     local maxSkillForLevel = playerLevel * 5;
     local bonusSkill = effectiveDefense - maxSkillForLevel;
-    local percentBonusText = format("%.2F", max(0, bonusSkill * .04)).."%";
-    local detailText = "Reduces your chance to be hit or crit, and increases your chance to block, dodge, and parry by "..percentBonusText.." againt a "..playerLevel.. " enemy";
+    local percentBonusText = format("%.2F", max(0, bonusSkill * .04)).."%";    
+    local detailText = "Against a level " .. playerLevel .. " enemy:\n".. 
+                        "  -"..percentBonusText .. " to be hit/crit " .. "\n" ..
+                        "  +"..percentBonusText .. " Block/Dodge/Parry ";
 
     local dazeReductionText = format("%.2F", max(0, bonusSkill * .16)); -- Not certain about this value.
-    detailText = detailText.."\nReduces your chance to be dazed by a level "..playerLevel.." enemy by "..dazeReductionText.."%";
+    detailText = detailText.."\n  -"..dazeReductionText.."% chance to be dazed";
     return detailText;
 end
 
@@ -892,9 +930,12 @@ function AnachronismStatsFrame_SetSpell(playerLevel)
         -- Possible TODO: Somehow calculate all other sources of MP5. How? Manual list of whitelisted buff IDs?
         -- Would need all possible short-term +Mana Regen, "Allow regen while casting" and +MP5 buffs. Eugh.
         local _, spirit, _, _ = UnitStat("player", 5);
-        local _, mp5RightNow = GetManaRegen("player");
-        local mp5RightNowText = format("%.0F", mp5RightNow * 5);
-        local mp5FromSpirit = floor(GetMp5FromSpirit(spirit, classFileName));
+        local mp5FromItems = GetMp5FromEquippedItems();    
+        local _, mp5RightNow = GetManaRegen("player"); -- Returns Mana Per 1, instead of Mana per 5
+        mp5RightNow = mp5RightNow * 5; -- Correct for MP1
+        mp5RightNow = mp5RightNow + mp5FromItems; -- Add in item contribution
+        local mp5RightNowText = format("%.0F", mp5RightNow);
+        local mp5FromSpirit = floor(GetMp5FromSpirit(spirit, classFileName));        
         local percentWhileCasting = GetPercentRegenWhileCasting(classFileName);
         manaRegenFrame.ValueFrame.Value:SetText(mp5RightNowText);
         manaRegenFrame.tooltipRow1 = "Mana Regeneration "..mp5RightNowText;
