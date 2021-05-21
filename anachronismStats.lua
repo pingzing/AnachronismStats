@@ -1,4 +1,7 @@
-local MAX_LEVEL = 60;
+local addonName, AS = ...; -- Get addon name and shared table.
+AnachronismStats = AS; -- Globalized, so XML can see it
+AS.MAX_LEVEL = 60;
+
 local CLASSES = { 
     Warrior = "WARRIOR",
     Rogue = "ROGUE",
@@ -14,7 +17,7 @@ local CLASSES = {
 local base_ShowSubFrame = CharacterFrame_ShowSubFrame;
 local isOpen = false;
 
-local function GetMp5FromSpirit(spirit, class)
+function AS:GetMp5FromSpirit(spirit, class)
     --Priests and mages: 13 + (spirit / 4) mana per tick
     if (class == CLASSES.Priest or class == CLASSES.Mage) then
         return (13 + (spirit / 4)) * 2.5; -- Multiplied by 2.5 as these values are per tick, and ticks are 2s each.
@@ -27,6 +30,28 @@ local function GetMp5FromSpirit(spirit, class)
     else
         return 0;
     end
+end
+
+function AS:GetPercentRegenWhileCasting(class)
+    -- We need to check three possible talents:
+    -- Meditation (Priest), Arcane Meditation (Mage), Reflection (Druid).
+    -- TODO: Should also check mage for Mage Armor
+    -- There are a handful of talented/trinket/set bonus/etc short-term buffs we could check too, but ehhhhhh
+    if (class == CLASSES.Priest) then
+        -- check for ranks of Meditation
+        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(1, 8);
+        return ranks * 5;
+    elseif (class == CLASSES.Mage) then
+        -- check for ranks of Arcane Meditation
+        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(1, 12);
+        return ranks * 5;
+    elseif (class == CLASSES.Druid) then
+        -- check for ranks of Reflection
+        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(3, 6);
+        return ranks * 5;
+    end    
+
+    return 0;
 end
 
 local equipmentSlots = {
@@ -53,14 +78,15 @@ local function GetMp5FromEquippedItems()
     for _, slotId in ipairs(equipmentSlots) do
         local itemId = GetInventoryItemID("player", slotId);
         if (itemId ~= nil) then
-            local statsTable = {};
+            local statsTable = {}; -- need an empty table here, because GetItemStats() won't clear it for us
             GetItemStats("item:"..itemId, statsTable); -- this fills the stats table
-            local mp5Value = statsTable['ITEM_MOD_POWER_REGEN0_SHORT'];
+            local mp5Value = statsTable['ITEM_MOD_POWER_REGEN0_SHORT']; -- aka MP5
             if (mp5Value ~= nil) then
-                summedMp5 = summedMp5 + 1 + mp5Value; -- for some reason, MP5 values are returned as 1 less than actual, so add 1
+                summedMp5 = summedMp5 + mp5Value + 1; -- for some reason, MP5 values are returned as 1 less than actual, so add 1
             end
         end
     end    
+
     return summedMp5;
 end
 
@@ -79,28 +105,6 @@ local function HasRanged()
     -- Seriously. This is how the official Blizzard PaperDoll does it. It checks for a texture in item slot 18.
     local rangedTexture = GetInventoryItemTexture("player", 18);
     return (not(hasRelic) and rangedTexture);
-end
-
-local function GetPercentRegenWhileCasting(class)
-    -- We need to check three possible talents:
-    -- Meditation (Priest), Arcane Meditation (Mage), Reflection (Druid).
-    -- TODO: Should also check mage for Mage Armor
-    -- There are a handful of talented/trinket/set bonus/etc short-term buffs we could check too, but ehhhhhh
-    if (class == CLASSES.Priest) then
-        -- check for ranks of Meditation
-        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(1, 8);
-        return ranks * 5;
-    elseif (class == CLASSES.Mage) then
-        -- check for ranks of Arcane Meditation
-        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(1, 12);
-        return ranks * 5;
-    elseif (class == CLASSES.Druid) then
-        -- check for ranks of Reflection
-        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(3, 6);
-        return ranks * 5;
-    end    
-
-    return 0;
 end
 
 local function GetDefenseValues()
@@ -162,178 +166,24 @@ local function GetStatTooltipText(name, base, posBuff, negBuff)
 		end
     end
     
-    local tooltipRow2 = AS_GetStatTooltipDetailText(name, base, posBuff, negBuff);
+    local tooltipRow2 = GetStatTooltipDetailText(name, base, posBuff, negBuff);
 	return tooltipRow1, tooltipRow2;
+end
+
+local function GetStatTooltipDetailText(name, base, posBuff, negBuff)
+    if (name == "Attack Power") then
+        return "Increases your damage with melee weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
+    elseif (name == "Armor") then
+        return GetArmorDetailText(base, posBuff, negBuff);
+    elseif (name == "Defense") then
+        return GetDefenseDetailText(base, posBuff, negBuff);
+    elseif (name == "Ranged Attack Power") then
+        return "Increases your damage with ranged weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
+    end
 end
 
 -- ///////////ATTRIBUTE SPECIFIC STUFF///////////
 
--- All these tables assume level 60.
-local INT_PER_SPELLCRIT = {     
-    PALADIN = 54, -- This is controversial. Some old posts claim 29.5, but I'm skeptical.
-    WARLOCK = 60.6,
-    DRUID = 60.0,
-    SHAMAN = 59.5,
-    MAGE = 59.5,
-    PRIEST = 59.2,
- };
-
- local AGI_PER_CRIT = {
-     WARRIOR = 20,
-     ROGUE = 29,
-     PALADIN = 20,
-     WARLOCK = 20,
-     MAGE = 20,
-     SHAMAN = 20,
-     DRUID = 20,
-     PRIEST = 20,
-     HUNTER = 53,
- };
-
- local AGI_PER_DODGE = {
-    WARRIOR = 20,
-    ROGUE = 14.5,
-    PALADIN = 20,
-    WARLOCK = 20,
-    MAGE = 20,
-    SHAMAN = 20,
-    DRUID = 20,
-    PRIEST = 20,
-    HUNTER = 26.5,
- }
-
-local function GetStrengthDetailText(base, current, posBuff, negBuff, playerLevel)
-    local _, classFileName = UnitClass("player");
-    local stanceNum = GetShapeshiftForm();
-    local strengthDetailText = "";
-    if (classFileName == CLASSES.Warrior or classFileName == CLASSES.Paladin or classFileName == CLASSES.Shaman) then
-        -- TODO Figure out if we need to subtract base strength from 'current' here.
-        strengthDetailText = "Increases block value by "..floor(current / 20).."\n"; -- I hope this rounds down. Can stats go negative?
-    end    
-    -- Bears get 2 AP per strength, so check for "Druid && Bear" in addition to Warr or Pally.
-    if (classFileName == CLASSES.Warrior or classFileName == CLASSES.Paladin or ( classFileName == CLASSES.Druid and stanceNum == 1 )) then
-        strengthDetailText = strengthDetailText.."Increases melee attack power by ".. (current * 2).."\n";
-        -- Everyone else gets 1 AP per Str.
-    else
-        strengthDetailText = strengthDetailText.."Increases melee attack power by ".. current.."\n";
-    end
-
-    return strtrim(strengthDetailText);
-end
-
-local function GetAgilityDetailText(base, current, posBuff, negBuff, playerLevel)
-    local _, classFileName = UnitClass("player");
-    local stanceNum = GetShapeshiftForm();
-    local agiDetailText = "";    
-    -- 1 AP for Rogues, Hunters, and Cat Druids
-    if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Hunter or ( classFileName == CLASSES.Druid and stanceNum == 3 ) ) then
-        agiDetailText = "Increases melee attack power by "..current.."\n";
-    end
-    -- 2 RAP per Agi for hunters. 1 RAP per point for Warrs and Rogues.
-    if (classFileName == CLASSES.Hunter) then
-        agiDetailText = agiDetailText.. "Increases ranged attack power by ".. (current * 2).."\n";
-    elseif (classFileName == CLASSES.Warrior or classFileName == CLASSES.Rogue) then
-        agiDetailText = agiDetailText.. "Increases ranged attack power by "..current.."\n";
-    end
-
-    -- Crit chance
-    -- The operative guess here is that the level coefficient is just (currLevel / maxLevel) * AGI_PER_CRIT (which is the level 60 value)
-    -- That's almost certainly wrong, but it seems to be Good Enough(tm).
-    -- TODO: Bet I could dig out an old copy of RatingBuster and see what it did (provided formulas didn't change between 1.12 and 2.4.3)
-    local agiPerCrit = (playerLevel / MAX_LEVEL) * AGI_PER_CRIT[classFileName];
-    agiDetailText = agiDetailText.."Increases melee and ranged crit chance by ~"..format("%.2F", (current / agiPerCrit)).."%\n";
-
-    -- Ditto dodge chance.
-    local agiPerDodge = (playerLevel / MAX_LEVEL) * AGI_PER_DODGE[classFileName];
-    agiDetailText = agiDetailText.."Increases dodge chance by ~"..format("%.2F", (current / agiPerDodge)).."%\n";
-
-    -- 2 Armor per Agi
-    agiDetailText = agiDetailText.."Increases armor by "..(current * 2);
-
-    return strtrim(agiDetailText);
-end
-
-local function GetStaminaDetailText(base, current, posBuff, negBuff, playerLevel)
-    local _, race = UnitRace("player");
-
-    -- Value * 10. (Unless Tauren, then value * 10.5)            
-    -- The first 20 points of Stamina grant only 1 health point each.
-    local normalStam = current - 20;
-    local healthFromStam;
-    if (race == "Tauren") then
-        healthFromStam = normalStam * 10.5 + 20;
-    else
-        healthFromStam = normalStam * 10 + 20;
-    end    
-    return "Increases health by "..healthFromStam;
-end
-
-local function GetIntellectDetailText(base, current, posBuff, negBuff, playerLevel)
-    local _, classFileName = UnitClass("player");
-    -- We could be smart and check to see if the unit has mana, but... Druids. Just do the easy thing.
-    if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Warrior) then
-        return "";
-    end
-
-    local intPerCrit = (playerLevel / MAX_LEVEL) * INT_PER_SPELLCRIT[classFileName];
-    local intelDetailText = "Increases your maximum mana by "..floor(current * 15).."\n";
-    intelDetailText = intelDetailText.."Increases your spell crit chance by ~"..format("%.2F", (current / intPerCrit)).."%";
-    return strtrim(intelDetailText);
-end
-
-local function GetSpiritDetailText(base, current, posBuff, negBuff, playerLevel)
-    local _, classFileName = UnitClass("player");
-    if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Warrior) then
-        return "";
-    end
-
-    -- GetManaRegen("player") just returns regen at-the-moment, so we 
-    -- have to calculate all this ourselves.
-    local mp5FromSpirit = GetMp5FromSpirit(current, classFileName);    
-    local percentWhileCasting = GetPercentRegenWhileCasting(classFileName);
-    local spiritDetailText = "Increases your mana regeneration by "..floor(mp5FromSpirit).." per 5 seconds while not casting\n";
-    spiritDetailText = spiritDetailText.."Increases your mana regeneration by "..(floor(mp5FromSpirit * (percentWhileCasting / 100))).." per 5 seconds while casting";
-    return spiritDetailText;
-end
-
-local function GetAttributeTooltipDetailText(stat, base, current, posBuff, negBuff, playerLevel)
-    if (stat == "STRENGTH") then
-        return GetStrengthDetailText(base, current, posBuff, negBuff, playerLevel);
-    elseif (stat == "AGILITY") then
-        return GetAgilityDetailText(base, current, posBuff, negBuff, playerLevel);
-    elseif (stat == "STAMINA") then
-        return GetStaminaDetailText(base, current, posBuff, negBuff, playerLevel);
-    elseif (stat == "INTELLECT") then
-        return GetIntellectDetailText(base, current, posBuff, negBuff, playerLevel);
-    elseif (stat == "SPIRIT") then
-        return GetSpiritDetailText(base, current, posBuff, negBuff, playerLevel);
-    end
-end
-
-local function GetAttributeTooltipText(tooltipText, stat, base, current, posBuff, negBuff, playerLevel)
-    local tooltipRow1 = tooltipText;
-    if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then
-        tooltipRow1 = tooltipRow1..current..FONT_COLOR_CODE_CLOSE;        
-    else 
-        tooltipRow1 = tooltipRow1..current;
-        if ( posBuff > 0 or negBuff < 0 ) then
-            tooltipRow1 = tooltipRow1.." ("..(current - posBuff - negBuff)..FONT_COLOR_CODE_CLOSE;
-        end
-        if ( posBuff > 0 ) then
-            tooltipRow1 = tooltipRow1..FONT_COLOR_CODE_CLOSE..GREEN_FONT_COLOR_CODE.."+"..posBuff..FONT_COLOR_CODE_CLOSE;
-        end
-        if ( negBuff < 0 ) then
-            tooltipRow1 = tooltipRow1..RED_FONT_COLOR_CODE.." "..negBuff..FONT_COLOR_CODE_CLOSE;
-        end
-        if ( posBuff > 0 or negBuff < 0 ) then
-            tooltipRow1 = tooltipRow1..HIGHLIGHT_FONT_COLOR_CODE..")"..FONT_COLOR_CODE_CLOSE;
-        end        
-    end  
-    
-    local tooltipRow2 = GetAttributeTooltipDetailText(stat, base, current, posBuff, negBuff, playerLevel);
-
-    return tooltipRow1, tooltipRow2;
-end
 
 -- ///////////END ATTRIBUTE SPECIFIC STUFF///////////
 
@@ -480,7 +330,7 @@ end
 
 -- RANGED SPECIFIC STUFF
 
-local function FillOutRangedDamageFarme(rangedDamageFrame)
+local function FillOutRangedDamageFrame(rangedDamageFrame)
 
     if (not (HasRanged())) then
         rangedDamageFrame.ValueFrame.Value:SetText("N/A");
@@ -636,7 +486,7 @@ end
 
 -- ///////////END DEFENSES SPECIFIC STUFF///////////
 
-local function SetASFrameVisible(visible)
+local function SetMainFrameVisible(visible)
     if (visible) then
         AnachronismStatsFrame:Show();
         SquareButton_SetIcon(AS_OpenStats, "LEFT");
@@ -648,25 +498,31 @@ local function SetASFrameVisible(visible)
     end
 end
 
-function AS_OpenStats_OnClick(self)
+local function ArrangePanels()
+    local containerFrame = AnachronismStatsContent;
+    local statsFrame = AS:GetStatsFrame();
+    statsFrame:SetParent(containerFrame);
+end
+
+function AS:OpenStats_OnClick()
     if (isOpen) then
-        SetASFrameVisible(false);
+        SetMainFrameVisible(false);
     else
-        SetASFrameVisible(true);
+        SetMainFrameVisible(true);
     end       
 end
 
-function AS_OpenStats_OnLoad(self)        
+function AS:OpenStats_OnLoad()        
     SquareButton_SetIcon(self, "RIGHT");
 end
 
-function AS_OpenStats_OnHide(self)
+function AS:OpenStats_OnHide()
     -- Make sure we're not sitting in the background if this tab has focus
     -- when the character frame is closed.
-    SetASFrameVisible(false);
+    SetMainFrameVisible(false);
 end
 
-function AnachronismStatsFrame_OnMouseWheel(self, delta)
+function AS:Frame_OnMouseWheel(delta)
     local current = AnachronismStatsScrollFrame_VSlider:GetValue();
     local _, maxValue = AnachronismStatsScrollFrame_VSlider:GetMinMaxValues();
     if (delta < 0) and (current < maxValue) then
@@ -676,8 +532,14 @@ function AnachronismStatsFrame_OnMouseWheel(self, delta)
     end
 end
 
-function AnachronismStatsFrame_OnLoad(self)
-    SetASFrameVisible(false);    
+function AnachronismStats_Frame_OnLoad(self)
+    print("AnachronismStats Loaded!");
+    print("Keys in 'AS': ")
+    for k,v in pairs(AS) do
+        print(k);
+    end
+    SetMainFrameVisible(false);
+    ArrangePanels();
 
 	self:RegisterEvent("UNIT_RESISTANCES");
 	self:RegisterEvent("UNIT_STATS");
@@ -694,61 +556,43 @@ function AnachronismStatsFrame_OnLoad(self)
     self:RegisterEvent("UNIT_POWER_UPDATE");
     
     -- Queue one initial update
-    self:SetScript("OnUpdate", AnachronismStatsFrame_QueuedUpdate);
+    self:SetScript("OnUpdate", AS:Frame_QueuedUpdate(self));
 
     -- Hook ShowSubFrame so that we get closed if any other tab gets opened.
     CharacterFrame_ShowSubFrame = function(frameName)        
         if (frameName ~= "PaperDollItemsFrame") then
-            SetASFrameVisible(false);
+            SetMainFrameVisible(false);
         end
         base_ShowSubFrame(frameName);
     end
 end
 
-function AnachronismStatsFrame_OnEvent(self, event, ...)
+function AS:Frame_OnEvent(event, ...)
     local unit = ...;        
     if ( unit ~= "player") then
         return;
     end
 
-    self:SetScript("OnUpdate", AnachronismStatsFrame_QueuedUpdate);
+    self:SetScript("OnUpdate", AS:Frame_QueuedUpdate(self));
 end
 
 -- Make sure we batch event updates to only happen once-per-frame.
-function AnachronismStatsFrame_QueuedUpdate(self)
+function AS:Frame_QueuedUpdate()
     -- Clear the queued update.
     self:SetScript("OnUpdate", nil);
-    AnachronismStatsFrame_UpdateStats();
+    AS:Frame_UpdateStats();
 end
 
-function AnachronismStatsFrame_UpdateStats()
+function AS:Frame_UpdateStats()
     local playerLevel = UnitLevel("player");
-    AnachronismStatsFrame_SetAttributes(playerLevel);
-    AnachronismStatsFrame_SetMelee(playerLevel);
-    AnachronismStatsFrame_SetRanged(playerLevel);
-    AnachronismStatsFrame_SetSpell(playerLevel);
-    AnachronismStatsFrame_SetDefenses(playerLevel);
+    AS:Frame_SetAttributes(playerLevel);
+    AS:Frame_SetMelee(playerLevel);
+    AS:Frame_SetRanged(playerLevel);
+    AS:Frame_SetSpell(playerLevel);
+    AS:Frame_SetDefenses(playerLevel);
 end
 
-function AnachronismStatsFrame_SetAttributes(playerLevel)
-    for i=1, 5 do
-        local base, current, posBuff, negBuff = UnitStat("player", i);
-        local frame = _G["AS_AttributeLabelFrame"..i];
-
-        -- Color values in white if there are no bonuses. Green if there are any. Red if there are any debuffs.
-        if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then
-            frame.ValueFrame.Value:SetText(current);
-        elseif ( negBuff < 0 ) then
-            frame.ValueFrame.Value:SetText(RED_FONT_COLOR_CODE..current..FONT_COLOR_CODE_CLOSE);
-        else
-            frame.ValueFrame.Value:SetText(GREEN_FONT_COLOR_CODE..current..FONT_COLOR_CODE_CLOSE);
-        end
-
-        frame.tooltipRow1, frame.tooltipRow2 = GetAttributeTooltipText(HIGHLIGHT_FONT_COLOR_CODE.._G["SPELL_STAT"..i.."_NAME"].." ", frame.stat, base, current, posBuff, negBuff, playerLevel);        
-    end
-end
-
-function AnachronismStatsFrame_SetMelee(playerLevel)    
+function AS:Frame_SetMelee(playerLevel)    
     -- Damage.
     local damageFrame = AS_MeleeLabelFrame1;
     damageFrame = FillOutMeleeDamageFrame(damageFrame);
@@ -808,7 +652,7 @@ function AnachronismStatsFrame_SetMelee(playerLevel)
     wepSkillFrame.tooltipRow2 = wepSkillTooltipRow2;
 end
 
-function AnachronismStatsFrame_SetRanged(playerLevel)
+function AS:Frame_SetRanged(playerLevel)
     local _, classFileName = UnitClass("player");
     local rangedDamageFrame = AS_RangedLabelFrame1;
     local rangedSpeedFrame = AS_RangedLabelFrame2;
@@ -829,7 +673,7 @@ function AnachronismStatsFrame_SetRanged(playerLevel)
     end
 
     -- Damage    
-    rangedDamageFrame = FillOutRangedDamageFarme(rangedDamageFrame);
+    rangedDamageFrame = FillOutRangedDamageFrame(rangedDamageFrame);
     rangedDamageFrame.tooltipSpecialCase = ShowRangedDamageTooltip;
 
     -- Speed    
@@ -880,7 +724,7 @@ function AnachronismStatsFrame_SetRanged(playerLevel)
     rangedWepSkillFrame.tooltipRow2 = wepSkillTooltipRow2;
 end
 
-function AnachronismStatsFrame_SetSpell(playerLevel)
+function AS:Frame_SetSpell(playerLevel)
     -- Damage
     local spellDamageFrame = AS_SpellLabelFrame1;
     local highestSpellDamage, highestSchoolIndex = 0, 1;
@@ -943,7 +787,7 @@ function AnachronismStatsFrame_SetSpell(playerLevel)
     end
 end
 
-function AnachronismStatsFrame_SetDefenses(playerLevel)
+function AS:Frame_SetDefenses(playerLevel)
 
     -- Armor
     local armorFrame = AS_DefensesLabelFrame1;
@@ -986,7 +830,7 @@ function AnachronismStatsFrame_SetDefenses(playerLevel)
 
 end
 
-function AS_ShowStatTooltip(self)
+function AS:ShowStatTooltip()
     if (not (self.tooltipRow1) and not(self.tooltipSpecialCase)) then
         return;
     end
@@ -1003,16 +847,4 @@ function AS_ShowStatTooltip(self)
         GameTooltip:AddLine(self.tooltipRow2, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true);
     end
     GameTooltip:Show();
-end
-
-function AS_GetStatTooltipDetailText(name, base, posBuff, negBuff)
-    if (name == "Attack Power") then
-        return "Increases your damage with melee weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
-    elseif (name == "Armor") then
-        return GetArmorDetailText(base, posBuff, negBuff);
-    elseif (name == "Defense") then
-        return GetDefenseDetailText(base, posBuff, negBuff);
-    elseif (name == "Ranged Attack Power") then
-        return "Increases your damage with ranged weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
-    end
 end
