@@ -1,8 +1,5 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" 
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
-C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
-  <Include file="anachronismStats.xml" />
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">  
   <Script file="statsFrame.lua" />
 
   <!-- Stats container frame -->
@@ -13,6 +10,9 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
         <Offset x="5" y="0" />
       </Anchor>
     </Anchors>
+    <Scripts>
+      <OnLoad function="AnachronismStats_StatsFrame_OnLoad" />
+    </Scripts>
     <Frames>
       <!-- Attributes header frame -->
       <Frame name="AS_StatsHeaderFrame" inherits="AS_HeaderFrameTemplate">

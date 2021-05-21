@@ -7,5 +7,6 @@
 ## X-Email: psychozagal@gmail.com
 ## X-License: GPL v3
 
+# Entry point
 anachronismStats.xml
 statsFrame.xml

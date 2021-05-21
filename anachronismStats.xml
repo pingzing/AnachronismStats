@@ -1,65 +1,7 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" 
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
 C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
+  <Include file="templates.xml" />
   <Script file="anachronismStats.lua" />
-
-  <Font name="GameFontNormalSmallWhite" inherits="GameFontNormalSmall" virtual="true">
-    <Color r="1.0" g="1.0" b="1.0" />
-  </Font>
-
-  <!-- A template for a section header -->
-  <Frame name="AS_HeaderFrameTemplate" virtual="true">
-    <Size x="115" y="13" />
-    <Layers>
-      <Layer level="BACKGROUND">
-        <FontString name="$parentHeader" parentKey="Header" inherits="GameFontNormalSmall">
-          <Anchors>
-            <Anchor point="LEFT" />
-          </Anchors>
-        </FontString>
-      </Layer>
-    </Layers>
-  </Frame>
-
-  <!-- A template for a line of stats that has a name and a value -->
-  <Frame name="AS_StatFrameTemplate" virtual="true">
-    <Size x="115" y="13" />
-    <Layers>
-      <Layer level="BACKGROUND">
-        <FontString name="$parentStatLabel" parentKey="Label" inherits="GameFontNormalSmallWhite">
-          <Anchors>
-            <Anchor point="LEFT" />
-          </Anchors>
-        </FontString>
-      </Layer>
-    </Layers>
-    <Frames>
-      <Frame name="$parentStat" parentKey="ValueFrame">
-        <Size x="30" y="13" />
-        <Anchors>
-          <Anchor point="RIGHT" />
-        </Anchors>
-        <Layers>
-          <Layer level="BACKGROUND">
-            <FontString name="$parentText" parentKey="Value" inherits="GameFontNormalSmallWhite" justifyH="RIGHT">
-              <Anchors>
-                <Anchor point="RIGHT" />
-              </Anchors>
-            </FontString>
-          </Layer>
-        </Layers>
-      </Frame>
-    </Frames>
-    <Scripts>
-      <OnEnter>
-        AnachronismStats:ShowStatTooltip(self);
-      </OnEnter>
-      <OnLeave>
-        GameTooltip:Hide();
-      </OnLeave>
-    </Scripts>
-  </Frame>
 
   <!-- Button to show/hide AS Stats panel -->
   <Button name="AS_OpenStats" inherits="UIPanelSquareButton" motionScriptsWhileDisabled="false" parent="PaperDollFrame">
@@ -71,15 +13,15 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
       </Anchor>
     </Anchors>
     <Scripts>
-      <OnClick function="AnachronismStats:OpenStats_OnClick" />
+      <OnClick function="AnachronismStats_OpenStats_OnClick" />
       <OnEnter>
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
         GameTooltip:SetText(MicroButtonTooltipText("Anachronism Stats", ""), 1.0,1.0,1.0 );
       </OnEnter>
-      <OnClick function="AnachronismStats:OpenStats_OnClick" />
+      <OnClick function="AnachronismStats_OpenStats_OnClick" />
       <OnLeave function="GameTooltip_Hide" />
-      <OnLoad function="AnachronismStats:OpenStats_OnLoad" />
-      <OnHide function="AnachronismStats:OpenStats_OnHide" />
+      <OnLoad function="AnachronismStats_OpenStats_OnLoad" />
+      <OnHide function="AnachronismStats_OpenStats_OnHide" />
     </Scripts>
   </Button>
 
@@ -87,7 +29,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
   <Frame name="AnachronismStatsFrame" setAllPoints="true" enableMouse="true" parent="PaperDollFrame" useParentLevel="true">
     <Scripts>
       <OnLoad function="AnachronismStats_Frame_OnLoad" />
-      <OnEvent function="AnachronismStats:Frame_OnEvent" />
+      <OnEvent function="AnachronismStats_Frame_OnEvent" />
     </Scripts>
     <Size x="150" y="380" />
     <Anchors>
@@ -96,7 +38,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
       </Anchor>
     </Anchors>
     <Scripts>
-      <OnMouseWheel function="AnachronismStats:Frame_OnMouseWheel" />
+      <OnMouseWheel function="AnachronismStats_Frame_OnMouseWheel" />
     </Scripts>
     <Layers>
       <Layer level="BACKGROUND">
@@ -176,12 +118,11 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
             <Size x="130" y="475" />
             <Frames>
 
-
               <!-- Melee container frame-->
               <Frame name="AS_MeleeContainerFrame">
                 <Size x="130" y="93" />
                 <Anchors>
-                  <Anchor point="TOPLEFT" relativeTo="AS_StatContainerFrame" relativePoint="BOTTOMLEFT">
+                  <Anchor point="TOPLEFT" relativeTo="AnachronismStatsContent" relativePoint="BOTTOMLEFT">
                     <Offset x="0" y="-8" />
                   </Anchor>
                 </Anchors>

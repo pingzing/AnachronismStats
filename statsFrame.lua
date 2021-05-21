@@ -39,12 +39,12 @@ local function GetStrengthDetailText(base, current, posBuff, negBuff, playerLeve
     local _, classFileName = UnitClass("player");
     local stanceNum = GetShapeshiftForm();
     local strengthDetailText = "";
-    if (classFileName == CLASSES.Warrior or classFileName == CLASSES.Paladin or classFileName == CLASSES.Shaman) then
+    if (classFileName == AS.CLASSES.Warrior or classFileName == AS.CLASSES.Paladin or classFileName == AS.CLASSES.Shaman) then
         -- TODO Figure out if we need to subtract base strength from 'current' here.
         strengthDetailText = "Increases block value by "..floor(current / 20).."\n"; -- I hope this rounds down. Can stats go negative?
     end    
     -- Bears get 2 AP per strength, so check for "Druid && Bear" in addition to Warr or Pally.
-    if (classFileName == CLASSES.Warrior or classFileName == CLASSES.Paladin or ( classFileName == CLASSES.Druid and stanceNum == 1 )) then
+    if (classFileName == AS.CLASSES.Warrior or classFileName == AS.CLASSES.Paladin or ( classFileName == AS.CLASSES.Druid and stanceNum == 1 )) then
         strengthDetailText = strengthDetailText.."Increases melee attack power by ".. (current * 2).."\n";
         -- Everyone else gets 1 AP per Str.
     else
@@ -59,13 +59,13 @@ local function GetAgilityDetailText(base, current, posBuff, negBuff, playerLevel
     local stanceNum = GetShapeshiftForm();
     local agiDetailText = "";    
     -- 1 AP for Rogues, Hunters, and Cat Druids
-    if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Hunter or ( classFileName == CLASSES.Druid and stanceNum == 3 ) ) then
+    if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Hunter or ( classFileName == AS.CLASSES.Druid and stanceNum == 3 ) ) then
         agiDetailText = "Increases melee attack power by "..current.."\n";
     end
     -- 2 RAP per Agi for hunters. 1 RAP per point for Warrs and Rogues.
-    if (classFileName == CLASSES.Hunter) then
+    if (classFileName == AS.CLASSES.Hunter) then
         agiDetailText = agiDetailText.. "Increases ranged attack power by ".. (current * 2).."\n";
-    elseif (classFileName == CLASSES.Warrior or classFileName == CLASSES.Rogue) then
+    elseif (classFileName == AS.CLASSES.Warrior or classFileName == AS.CLASSES.Rogue) then
         agiDetailText = agiDetailText.. "Increases ranged attack power by "..current.."\n";
     end
 
@@ -104,7 +104,7 @@ end
 local function GetIntellectDetailText(base, current, posBuff, negBuff, playerLevel)
     local _, classFileName = UnitClass("player");
     -- We could be smart and check to see if the unit has mana, but... Druids. Just do the easy thing.
-    if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Warrior) then
+    if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
         return "";
     end
 
@@ -114,16 +114,17 @@ local function GetIntellectDetailText(base, current, posBuff, negBuff, playerLev
     return strtrim(intelDetailText);
 end
 
+-- TODO: This seems to return all zeroes ATM
 local function GetSpiritDetailText(base, current, posBuff, negBuff, playerLevel)
     local _, classFileName = UnitClass("player");
-    if (classFileName == CLASSES.Rogue or classFileName == CLASSES.Warrior) then
+    if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
         return "";
     end
 
     -- GetManaRegen("player") just returns regen at-the-moment, so we 
     -- have to calculate all this ourselves.
-    local mp5FromSpirit = AS:GetMp5FromSpirit(current, classFileName);    
-    local percentWhileCasting = AS:GetPercentRegenWhileCasting(classFileName);
+    local mp5FromSpirit = AS.GetMp5FromSpirit(current, classFileName);    
+    local percentWhileCasting = AS.GetPercentRegenWhileCasting(classFileName);
     local spiritDetailText = "Increases your mana regeneration by "..floor(mp5FromSpirit).." per 5 seconds while not casting\n";
     spiritDetailText = spiritDetailText.."Increases your mana regeneration by "..(floor(mp5FromSpirit * (percentWhileCasting / 100))).." per 5 seconds while casting";
     return spiritDetailText;
@@ -143,7 +144,12 @@ local function GetAttributeTooltipDetailText(stat, base, current, posBuff, negBu
     end
 end
 
-function GetAttributeTooltipText(tooltipText, stat, base, current, posBuff, negBuff, playerLevel)
+function AnachronismStats_StatsFrame_OnLoad(self) 
+    local containerFrame = AS.ContainerFrame;
+    AS_StatContainerFrame:SetParent(containerFrame);
+end
+
+function AS.GetAttributeTooltipText(tooltipText, stat, base, current, posBuff, negBuff, playerLevel)
     local tooltipRow1 = tooltipText;
     if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then
         tooltipRow1 = tooltipRow1..current..FONT_COLOR_CODE_CLOSE;        
@@ -168,7 +174,7 @@ function GetAttributeTooltipText(tooltipText, stat, base, current, posBuff, negB
     return tooltipRow1, tooltipRow2;
 end
 
-function AS:Frame_SetAttributes(playerLevel)
+function AS.Frame_SetAttributes(playerLevel)
     for i=1, 5 do
         local base, current, posBuff, negBuff = UnitStat("player", i);
         local frame = _G["AS_AttributeLabelFrame"..i];
@@ -182,10 +188,10 @@ function AS:Frame_SetAttributes(playerLevel)
             frame.ValueFrame.Value:SetText(GREEN_FONT_COLOR_CODE..current..FONT_COLOR_CODE_CLOSE);
         end
 
-        frame.tooltipRow1, frame.tooltipRow2 = AS:GetAttributeTooltipText(HIGHLIGHT_FONT_COLOR_CODE.._G["SPELL_STAT"..i.."_NAME"].." ", frame.stat, base, current, posBuff, negBuff, playerLevel);        
+        frame.tooltipRow1, frame.tooltipRow2 = AS.GetAttributeTooltipText(HIGHLIGHT_FONT_COLOR_CODE.._G["SPELL_STAT"..i.."_NAME"].." ", frame.stat, base, current, posBuff, negBuff, playerLevel);        
     end
 end
 
-function AS:GetStatsFrame()
+function AS.GetStatsFrame()
     return AS_StatContainerFrame;
 end

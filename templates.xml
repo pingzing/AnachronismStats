@@ -1,0 +1,61 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
+
+  <Font name="GameFontNormalSmallWhite" inherits="GameFontNormalSmall" virtual="true">
+    <Color r="1.0" g="1.0" b="1.0" />
+  </Font>
+
+  <!-- A template for a section header -->
+  <Frame name="AS_HeaderFrameTemplate" virtual="true">
+    <Size x="115" y="13" />
+    <Layers>
+      <Layer level="BACKGROUND">
+        <FontString name="$parentHeader" parentKey="Header" inherits="GameFontNormalSmall">
+          <Anchors>
+            <Anchor point="LEFT" />
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+  </Frame>
+
+    <!-- A template for a line of stats that has a name and a value -->
+    <Frame name="AS_StatFrameTemplate" virtual="true">
+      <Size x="115" y="13" />
+      <Layers>
+        <Layer level="BACKGROUND">
+          <FontString name="$parentStatLabel" parentKey="Label" inherits="GameFontNormalSmallWhite">
+            <Anchors>
+              <Anchor point="LEFT" />
+            </Anchors>
+          </FontString>
+        </Layer>
+      </Layers>
+      <Frames>
+        <Frame name="$parentStat" parentKey="ValueFrame">
+          <Size x="30" y="13" />
+          <Anchors>
+            <Anchor point="RIGHT" />
+          </Anchors>
+          <Layers>
+            <Layer level="BACKGROUND">
+              <FontString name="$parentText" parentKey="Value" inherits="GameFontNormalSmallWhite" justifyH="RIGHT">
+                <Anchors>
+                  <Anchor point="RIGHT" />
+                </Anchors>
+              </FontString>
+            </Layer>
+          </Layers>
+        </Frame>
+      </Frames>
+      <Scripts>
+        <OnEnter>
+          AnachronismStats.ShowStatTooltip(self);
+        </OnEnter>
+        <OnLeave>
+          GameTooltip:Hide();
+        </OnLeave>
+      </Scripts>
+    </Frame>
+
+</Ui>
