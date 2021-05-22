@@ -144,9 +144,9 @@ local function GetAttributeTooltipDetailText(stat, base, current, posBuff, negBu
     end
 end
 
-function AnachronismStats_StatsFrame_OnLoad(self) 
+function AnachronismStats_AttributesPanel_OnLoad(self) 
     local containerFrame = AS.ContainerFrame;
-    AS_StatContainerFrame:SetParent(containerFrame);
+    self:SetParent(containerFrame);
 end
 
 function AS.GetAttributeTooltipText(tooltipText, stat, base, current, posBuff, negBuff, playerLevel)
@@ -192,6 +192,6 @@ function AS.Frame_SetAttributes(playerLevel)
     end
 end
 
-function AS.GetStatsFrame()
-    return AS_StatContainerFrame;
+function AS.GetAttributesPanel()
+    return AS_AttributesContainerFrame;
 end

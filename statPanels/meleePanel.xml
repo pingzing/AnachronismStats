@@ -1,0 +1,130 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
+  <Script file="meleePanel.lua" />
+
+  <!-- Melee container frame-->
+  <Frame name="AS_MeleeContainerFrame">
+    <Size x="130" y="93" />
+    <Anchors>
+      <Anchor point="TOPLEFT" relativeTo="AnachronismStatsContent" relativePoint="TOPLEFT">
+        <Offset x="5" y="-80" />
+      </Anchor>
+    </Anchors>
+    <Scripts>
+      <OnLoad function="AnachronismStats_MeleePanel_OnLoad" />
+    </Scripts>
+
+    <Frames>
+      <!-- Melee header -->
+      <Frame name="AS_MeleeHeaderFrame" inherits="AS_HeaderFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeContainerFrame">
+            <Offset x="0" y="0" />
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Header:SetText("Melee");
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Damage -->
+      <Frame name="AS_MeleeLabelFrame1" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeHeaderFrame">
+            <Offset>
+              <AbsDimension x="0" y="-15" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Damage:");
+            self.name = "Damage";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Speed -->
+      <Frame name="AS_MeleeLabelFrame2" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame1">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Speed:");
+            self.name = "Attack Speed";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- AP -->
+      <Frame name="AS_MeleeLabelFrame3" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame2">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Power:");
+            self.name = "Attack Power";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Hit -->
+      <Frame name="AS_MeleeLabelFrame4" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame3">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Hit Chance:");
+            self.name = "Hit Chance";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Crit -->
+      <Frame name="AS_MeleeLabelFrame5" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame4">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Crit Chance:");
+            self.name = "Crit Chance";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Wep Skill -->
+      <Frame name="AS_MeleeLabelFrame6" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame5">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Weapon Skill:");
+            self.name = "Weapon Skill";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+    </Frames>
+  </Frame>
+
+</Ui>
