@@ -14,11 +14,12 @@ AS.CLASSES = {
 };
 AS.ContainerFrame = nil; -- Gets set in OnLoad.
 
+-- Keys are integer position, value is string name of panel.
+-- Persisted between sessions via SavedVariablesPerCharacter
+AnachronismStats_PanelPositions = nil;
+
 local _base_ShowSubFrame = CharacterFrame_ShowSubFrame;
 local _isOpen = false;
-
--- Keys are integer position, value is string name of panel
-local _panelPositions = nil;
 
 -- Keys are names, values are references to panels
 local _panelReferences = nil;
@@ -26,30 +27,28 @@ local _panelReferences = nil;
 -- //// PANEL POSITION HANDLING ////
 
 local function GetOrLoadPanelPositions()
-    if _panelPositions ~= nil then
-        return _panelPositions;
+    if AnachronismStats_PanelPositions then
+        return AnachronismStats_PanelPositions;
     end
 
-    -- TODO: Load from SavedVariables
     -- No saved variables? Generate inital positions
-
     local attrPanel = AS.GetAttributesPanel();
     local meleePanel = AS.GetMeleePanel();
     local spellPanel = AS.GetSpellPanel();
     local defensesPanel = AS.GetDefensePanel();
     local rangedPanel = AS.GetRangedPanel();
-    _panelPositions = {};
-    _panelPositions[1] = attrPanel:GetName();
-    _panelPositions[2]= meleePanel:GetName();
-    _panelPositions[3] = spellPanel:GetName();
-    _panelPositions[4] = defensesPanel:GetName();
-    _panelPositions[5] = rangedPanel:GetName();
+    AnachronismStats_PanelPositions = {};
+    AnachronismStats_PanelPositions[1] = attrPanel:GetName();
+    AnachronismStats_PanelPositions[2] = meleePanel:GetName();
+    AnachronismStats_PanelPositions[3] = spellPanel:GetName();
+    AnachronismStats_PanelPositions[4] = defensesPanel:GetName();
+    AnachronismStats_PanelPositions[5] = rangedPanel:GetName();
 
-    return _panelPositions;
+    return AnachronismStats_PanelPositions;
 end
 
 local function ArrangePanels(panelPositions)
-    for i,v in ipairs(panelPositions) do
+    for i, v in ipairs(panelPositions) do
         local currPanel = _panelReferences[v];
         if i == 1 then
             -- Special case for the first panel, as it gets positioned relative to the root frame
@@ -59,12 +58,12 @@ local function ArrangePanels(panelPositions)
             local prevPanel = _panelReferences[panelPositions[i - 1]];
             local prevPanelHeight = prevPanel:GetHeight();
             currPanel:SetPoint("TOPLEFT", prevPanel, "TOPLEFT", 0, -prevPanelHeight);
-        end        
+        end
     end
 end
 
 local function GetPanelPosition(panelPositions, panelName)
-    for i,v in ipairs(panelPositions) do
+    for i, v in ipairs(panelPositions) do
         if v == panelName then
             return i;
         end
@@ -230,27 +229,27 @@ function AS.ShowStatTooltip(self)
 end
 
 function AS.StatPanel_UpArrow_OnClick(panel)
-    local panelPosition = GetPanelPosition(_panelPositions, panel:GetName());
+    local panelPosition = GetPanelPosition(AnachronismStats_PanelPositions, panel:GetName());
     if (panelPosition == 1 or panelPosition == -1) then
         -- We're either at the top, or we got an invalid position
         return;
-    end    
+    end
 
-    SwapPanelPositions(_panelPositions, panelPosition, panelPosition - 1);
+    SwapPanelPositions(AnachronismStats_PanelPositions, panelPosition, panelPosition - 1);
 
-    ArrangePanels(_panelPositions);
+    ArrangePanels(AnachronismStats_PanelPositions);
 end
 
 function AS.StatPanel_DownArrow_OnClick(panel)
-    local panelPosition = GetPanelPosition(_panelPositions, panel:GetName());
+    local panelPosition = GetPanelPosition(AnachronismStats_PanelPositions, panel:GetName());
     if (panelPosition == -1 or panelPosition == 5) then
         -- We're either at the bottom, or got an invalid position
         return;
     end
 
-    SwapPanelPositions(_panelPositions, panelPosition, panelPosition + 1);
+    SwapPanelPositions(AnachronismStats_PanelPositions, panelPosition, panelPosition + 1);
 
-    ArrangePanels(_panelPositions);
+    ArrangePanels(AnachronismStats_PanelPositions);
 end
 
 local function SetMainFrameVisible(visible)
@@ -338,7 +337,7 @@ local function LoadCompleted()
     local rangedPanel = AS.GetRangedPanel();
     _panelReferences = {};
     _panelReferences[attrPanel:GetName()] = attrPanel;
-    _panelReferences[meleePanel:GetName()]= meleePanel;
+    _panelReferences[meleePanel:GetName()] = meleePanel;
     _panelReferences[spellPanel:GetName()] = spellPanel;
     _panelReferences[defensesPanel:GetName()] = defensesPanel;
     _panelReferences[rangedPanel:GetName()] = rangedPanel;
@@ -382,14 +381,23 @@ end
 	Set indent ("") to prefix each line:    Mytable [KEY] [KEY]...[KEY] VALUE
 --]]
 function AS.DebugPrintTable(s, l, i) -- recursive Print (structure, limit, indent)
-	l = (l) or 100; i = i or "";	-- default item limit, indent string
-	if (l<1) then print "ERROR: Item limit reached."; return l-1 end;
-	local ts = type(s);
-	if (ts ~= "table") then print (i,ts,s); return l-1 end
-	print (i,ts);           -- print "table"
-	for k,v in pairs(s) do  -- print "[KEY] VALUE"
-		l = AS.DebugPrintTable(v, l, i.."  ["..tostring(k).."]");
-		if (l < 0) then break end
-	end
-	return l
-end	
+    l = (l) or 100;
+    i = i or ""; -- default item limit, indent string
+    if (l < 1) then
+        print "ERROR: Item limit reached.";
+        return l - 1
+    end
+    local ts = type(s);
+    if (ts ~= "table") then
+        print(i, ts, s);
+        return l - 1
+    end
+    print(i, ts); -- print "table"
+    for k, v in pairs(s) do -- print "[KEY] VALUE"
+        l = AS.DebugPrintTable(v, l, i .. "  [" .. tostring(k) .. "]");
+        if (l < 0) then
+            break
+        end
+    end
+    return l
+end
