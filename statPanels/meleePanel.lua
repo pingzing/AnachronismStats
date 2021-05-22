@@ -165,9 +165,20 @@ local function GetWeaponSkillDetails(mainBase, mainMod, hasOffhand, offBase, off
     return wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2;
 end
 
+local function OnUpArrow_Click()
+    AS.StatPanel_UpArrow_OnClick(AS_MeleeContainerFrame);
+end
+
+local function OnDownArrow_Click()
+    AS.StatPanel_DownArrow_OnClick(AS_MeleeContainerFrame);
+end
+
 function AnachronismStats_MeleePanel_OnLoad(self)
     local containerFrame = AS.ContainerFrame;
     self:SetParent(containerFrame);
+
+    AS_MeleeHeaderFrame.UpArrow:SetScript("OnClick", OnUpArrow_Click);
+    AS_MeleeHeaderFrame.DownArrow:SetScript("OnClick", OnDownArrow_Click);
 end
 
 function AS.Frame_SetMelee(playerLevel)
@@ -231,4 +242,8 @@ function AS.Frame_SetMelee(playerLevel)
     wepSkillFrame.ValueFrame.Value:SetText(wepSkillText);
     wepSkillFrame.tooltipRow1 = wepSkillTooltipRow1;
     wepSkillFrame.tooltipRow2 = wepSkillTooltipRow2;
+end
+
+function AS.GetMeleePanel()
+    return AS_MeleeContainerFrame;
 end

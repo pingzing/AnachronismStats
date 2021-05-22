@@ -18,6 +18,24 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
         </FontString>
       </Layer>
     </Layers>
+    <Frames>
+      <Button name="$parentUpArrow" parentKey="UpArrow" inherits="UIPanelScrollUpButtonTemplate">
+        <Size x="10" y="10"/>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+            <Offset x="95" y="-2" />
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentDownArrow" parentKey="DownArrow" inherits="UIPanelScrollDownButtonTemplate">
+        <Size x="10" y="10"/>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+            <Offset x="105" y="-2" />
+          </Anchor>
+        </Anchors>
+      </Button>
+    </Frames>
   </Frame>
 
     <!-- A template for a line of stats that has a name and a value -->

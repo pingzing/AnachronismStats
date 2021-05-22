@@ -7,16 +7,16 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
   <Button name="AS_OpenStats" inherits="UIPanelSquareButton" motionScriptsWhileDisabled="false" parent="PaperDollFrame">
     <Anchors>
       <Anchor point="TOPLEFT" relativeTo="PaperDollFrame" relativePoint="TOPLEFT">
-        <Offset>
-          <AbsDimension x="306" y="-40" />
-        </Offset>
+        <Offset x="320" y="-42" />
       </Anchor>
     </Anchors>
     <Scripts>
       <OnClick function="AnachronismStats_OpenStats_OnClick" />
       <OnEnter>
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-        GameTooltip:SetText(MicroButtonTooltipText("Anachronism Stats", ""), 1.0,1.0,1.0 );
+        GameTooltip:SetText("Anachronism Stats", 1.0,1.0,1.0 );
+        GameTooltip:AddLine("View all your stats in a single, scrollable panel.", NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
+        GameTooltip:Show();
       </OnEnter>
       <OnClick function="AnachronismStats_OpenStats_OnClick" />
       <OnLeave function="GameTooltip_Hide" />
@@ -116,7 +116,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           <!-- Frame that contains the actual stats. -->
           <Frame name="AnachronismStatsContent">
             <Size x="130" y="415" />
-            
+
             <!-- All child frames are parented to this frame in their own Lua OnLoad functions. -->
 
           </Frame>
