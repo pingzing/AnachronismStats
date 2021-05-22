@@ -1,0 +1,115 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">  
+  <Script file="attributesPanel.lua" />
+
+  <!-- Attributes container frame -->
+  <Frame name="AS_AttributesContainerFrame">
+    <Size x="130" y="80" />
+    <Anchors>
+      <Anchor point="TOPLEFT" relativeTo="AnachronismStatsContent" relativePoint="TOPLEFT">
+        <Offset x="5" y="0" />
+      </Anchor>
+    </Anchors>
+    <Scripts>
+      <OnLoad function="AnachronismStats_AttributesPanel_OnLoad" />
+    </Scripts>
+    <Frames>
+      <!-- Attributes header frame -->
+      <Frame name="AS_StatsHeaderFrame" inherits="AS_HeaderFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_AttributesContainerFrame">
+            <Offset>
+              <AbsDimension x="0" y="0" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Header:SetText("Attributes");
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Strength -->
+      <Frame name="AS_AttributeLabelFrame1" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_StatsHeaderFrame">
+            <Offset>
+              <AbsDimension x="0" y="-15" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Strength:");
+            self.stat = "STRENGTH";                                           
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Agility -->
+      <Frame name="AS_AttributeLabelFrame2" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame1">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Agility:");
+            self.stat = "AGILITY";                                           
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Stamina -->
+      <Frame name="AS_AttributeLabelFrame3" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame2">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Stamina:");
+            self.stat = "STAMINA";                                           
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Intellect -->
+      <Frame name="AS_AttributeLabelFrame4" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame3">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Intellect:");
+            self.stat = "INTELLECT";                                           
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Spirit -->
+      <Frame name="AS_AttributeLabelFrame5" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_AttributeLabelFrame4">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Spirit:");
+            self.stat = "SPIRIT";                                           
+          </OnLoad>
+        </Scripts>
+      </Frame>
+    </Frames>
+  </Frame>
+
+</Ui>

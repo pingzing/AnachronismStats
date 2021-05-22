@@ -1,0 +1,115 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
+  <Script file="defensePanel.lua" />
+
+  <!-- Defenses container frame -->
+  <Frame name="AS_DefensesContainerFrame" inherits="AS_HeaderFrameTemplate">
+    <Size x="130" y="80" />
+    <Anchors>
+      <Anchor point="TOPLEFT" relativeTo="AnachronismStatsContent" relativePoint="TOPLEFT">
+        <Offset x="5" y="-250" />
+      </Anchor>
+    </Anchors>
+
+    <Scripts>
+      <OnLoad function="AnachronismStats_DefensePanel_OnLoad" />
+    </Scripts>
+
+    <Frames>
+      <!-- Defenses header -->
+      <Frame name="AS_DefensesHeaderFrame" inherits="AS_HeaderFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_DefensesContainerFrame">
+            <Offset x="0" y="0" />
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Header:SetText("Defenses");
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Armor -->
+      <Frame name="AS_DefensesLabelFrame1" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_DefensesHeaderFrame">
+            <Offset>
+              <AbsDimension x="0" y="-15" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Armor:");
+            self.name = "Armor";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Defense -->
+      <Frame name="AS_DefensesLabelFrame2" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_DefensesLabelFrame1">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Defense:");
+            self.name = "Defense";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Block -->
+      <Frame name="AS_DefensesLabelFrame3" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_DefensesLabelFrame2">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Block:");
+            self.name = "Block";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Dodge -->
+      <Frame name="AS_DefensesLabelFrame4" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_DefensesLabelFrame3">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Dodge:");
+            self.name = "Dodge";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Parry -->
+      <Frame name="AS_DefensesLabelFrame5" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_DefensesLabelFrame4">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Parry:");
+            self.name = "Parry";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+    </Frames>
+  </Frame>
+
+</Ui>

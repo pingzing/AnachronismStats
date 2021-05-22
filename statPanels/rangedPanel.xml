@@ -1,0 +1,129 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
+  <Script file="rangedPanel.lua" />
+
+  <!-- Ranged -->
+  <Frame name="AS_RangedContainerFrame" inherits="AS_HeaderFrameTemplate">
+    <Size x="130" y="93" />
+    <Anchors>
+      <Anchor point="TOPLEFT" relativeTo="AnachronismStatsContent" relativePoint="TOPLEFT">
+        <Offset x="5" y="-330" />
+      </Anchor>
+    </Anchors>
+    <Scripts>
+      <OnLoad function="AnachronismStats_RangedPanel_OnLoad" />
+    </Scripts>
+    <Frames>
+      <Frame name="AS_RangedHeaderFrame" inherits="AS_HeaderFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_RangedContainerFrame">
+            <Offset x="0" y="0" />
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Header:SetText("Ranged");
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Damage -->
+      <Frame name="AS_RangedLabelFrame1" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_RangedHeaderFrame">
+            <Offset>
+              <AbsDimension x="0" y="-15" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Damage:");
+            self.name = "Damage";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Speed -->
+      <Frame name="AS_RangedLabelFrame2" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_RangedLabelFrame1">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Speed:");
+            self.name = "Attack Speed";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- AP -->
+      <Frame name="AS_RangedLabelFrame3" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_RangedLabelFrame2">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Power:");
+            self.name = "Ranged Attack Power";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Hit -->
+      <Frame name="AS_RangedLabelFrame4" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_RangedLabelFrame3">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Hit Chance:");
+            self.name = "Hit Chance";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Crit -->
+      <Frame name="AS_RangedLabelFrame5" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_RangedLabelFrame4">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Crit Chance:");
+            self.name = "Crit Chance";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Todo: Replace with Expertise -->
+      <!-- Wep Skill -->
+      <Frame name="AS_RangedLabelFrame6" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_RangedLabelFrame5">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Weapon Skill:");
+            self.name = "Weapon Skill";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+    </Frames>
+  </Frame>
+
+</Ui>
