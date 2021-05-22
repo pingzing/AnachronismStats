@@ -42,6 +42,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
     </Scripts>
     <Layers>
       <Layer level="BACKGROUND">
+        <!-- Top border and corners -->
         <Texture name="AS_StatBackgroundTop" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
           <Size>
             <AbsDimension x="150" y="16" />
@@ -55,9 +56,10 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           </Anchors>
           <TexCoords left="0" right="0.8984375" top="0" bottom="0.125" />
         </Texture>
+        <!-- Middle, with straight sides -->
         <Texture name="AS_StatBackgoundMiddle" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
           <Size>
-            <AbsDimension x="150" y="392" />
+            <AbsDimension x="150" y="393" />
           </Size>
           <Anchors>
             <Anchor point="TOPLEFT" relativeTo="AS_StatBackgroundTop" relativePoint="BOTTOMLEFT">
@@ -68,6 +70,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           </Anchors>
           <TexCoords left="0" right="0.8984375" top="0.125" bottom="0.1953125" />
         </Texture>
+        <!-- Bottom border and corners -->
         <Texture name="AD_StatBackgroundBottom" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
           <Size>
             <AbsDimension x="150" y="16" />
