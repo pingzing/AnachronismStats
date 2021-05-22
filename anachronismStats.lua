@@ -229,27 +229,29 @@ function AS.ShowStatTooltip(self)
 end
 
 function AS.StatPanel_UpArrow_OnClick(panel)
-    local panelPosition = GetPanelPosition(AnachronismStats_PanelPositions, panel:GetName());
+    local panelPositions = GetOrLoadPanelPositions();
+    local panelPosition = GetPanelPosition(panelPositions, panel:GetName());
     if (panelPosition == 1 or panelPosition == -1) then
         -- We're either at the top, or we got an invalid position
         return;
     end
 
-    SwapPanelPositions(AnachronismStats_PanelPositions, panelPosition, panelPosition - 1);
+    SwapPanelPositions(panelPositions, panelPosition, panelPosition - 1);
 
-    ArrangePanels(AnachronismStats_PanelPositions);
+    ArrangePanels(panelPositions);
 end
 
 function AS.StatPanel_DownArrow_OnClick(panel)
-    local panelPosition = GetPanelPosition(AnachronismStats_PanelPositions, panel:GetName());
+    local panelPositions =  GetOrLoadPanelPositions();
+    local panelPosition = GetPanelPosition(panelPositions, panel:GetName());
     if (panelPosition == -1 or panelPosition == 5) then
         -- We're either at the bottom, or got an invalid position
         return;
     end
 
-    SwapPanelPositions(AnachronismStats_PanelPositions, panelPosition, panelPosition + 1);
+    SwapPanelPositions(panelPositions, panelPosition, panelPosition + 1);
 
-    ArrangePanels(AnachronismStats_PanelPositions);
+    ArrangePanels(panelPositions);
 end
 
 local function SetMainFrameVisible(visible)

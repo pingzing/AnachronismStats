@@ -5,8 +5,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
     <Color r="1.0" g="1.0" b="1.0" />
   </Font>
 
-  <!-- A template for a section header -->
-  <!-- TODO: Add up/down arrows -->
+  <!-- A template for a section header -->  
   <Frame name="AS_HeaderFrameTemplate" virtual="true">
     <Size x="115" y="13" />
     <Layers>
