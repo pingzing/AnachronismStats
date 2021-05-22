@@ -1,7 +1,7 @@
 local addonName, AS = ...; -- Get addon name and shared table.
 
 AS.MAX_LEVEL = 70;
-AS.CLASSES = { 
+AS.CLASSES = {
     Warrior = "WARRIOR",
     Rogue = "ROGUE",
     Paladin = "PALADIN",
@@ -11,8 +11,8 @@ AS.CLASSES = {
     Druid = "DRUID",
     Priest = "PRIEST",
     Hunter = "HUNTER",
- };
- AS.ContainerFrame = nil; -- Gets set in OnLoad.
+};
+AS.ContainerFrame = nil; -- Gets set in OnLoad.
 
 local base_ShowSubFrame = CharacterFrame_ShowSubFrame;
 local isOpen = false;
@@ -21,13 +21,14 @@ local isOpen = false;
 
 -- TODO: Update for BC
 function AS.GetMp5FromSpirit(spirit, class)
-    --Priests and mages: 13 + (spirit / 4) mana per tick
+    -- Priests and mages: 13 + (spirit / 4) mana per tick
     if (class == AS.CLASSES.Priest or class == AS.CLASSES.Mage) then
         return (13 + (spirit / 4)) * 2.5; -- Multiplied by 2.5 as these values are per tick, and ticks are 2s each.
-    --Druids, shamans, paladins, hunters: 15 + (spirit / 5) mana per tick
-    elseif (class == AS.CLASSES.Druid or class == AS.CLASSES.Shaman or class == AS.CLASSES.Paladin or class == AS.CLASSES.Hunter) then
+        -- Druids, shamans, paladins, hunters: 15 + (spirit / 5) mana per tick
+    elseif (class == AS.CLASSES.Druid or class == AS.CLASSES.Shaman or class == AS.CLASSES.Paladin or class ==
+        AS.CLASSES.Hunter) then
         return (15 + (spirit / 5)) * 2.5;
-    --Warlocks: 12 + (spirit / 4) mana per tick (Historical data claims 8 + spir..., but actual testing seems to imply 12? maybe it changes at level 60)
+        -- Warlocks: 12 + (spirit / 4) mana per tick (Historical data claims 8 + spir..., but actual testing seems to imply 12? maybe it changes at level 60)
     elseif (class == AS.CLASSES.Warlock) then
         return (12 + (spirit / 4)) * 2.5;
     else
@@ -53,7 +54,7 @@ function AS.GetPercentRegenWhileCasting(class)
         -- check for ranks of Reflection
         local _, _, _, _, ranks, _, _, _ = GetTalentInfo(3, 6);
         return ranks * 5;
-    end    
+    end
 
     return 0;
 end
@@ -83,73 +84,76 @@ function AS.GetMp5FromEquippedItems()
         local itemId = GetInventoryItemID("player", slotId);
         if (itemId ~= nil) then
             local statsTable = {}; -- need an empty table here, because GetItemStats() won't clear it for us
-            GetItemStats("item:"..itemId, statsTable); -- this fills the stats table
-            local mp5Value = statsTable['ITEM_MOD_POWER_REGEN0_SHORT']; -- aka MP5
+            GetItemStats("item:" .. itemId, statsTable); -- this fills the stats table
+            local mp5Value = statsTable["ITEM_MOD_POWER_REGEN0_SHORT"]; -- aka MP5
             if (mp5Value ~= nil) then
                 summedMp5 = summedMp5 + mp5Value + 1; -- for some reason, MP5 values are returned as 1 less than actual, so add 1
             end
         end
-    end    
+    end
 
     return summedMp5;
 end
 
 function AS.GetStatValue(base, posBuff, negBuff)
-    local effective = max(0,base + posBuff + negBuff);	
-	if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then		
-		return effective;
-	else 
-		-- if there is a negative buff then show the main number in red, even if there are
-		-- positive buffs. Otherwise show the number in green
-		if ( negBuff < 0 ) then
-			return RED_FONT_COLOR_CODE..effective..FONT_COLOR_CODE_CLOSE;
-		else
-			return GREEN_FONT_COLOR_CODE..effective..FONT_COLOR_CODE_CLOSE;
-		end
-	end	
+    local effective = max(0, base + posBuff + negBuff);
+    if ((posBuff == 0) and (negBuff == 0)) then
+        return effective;
+    else
+        -- if there is a negative buff then show the main number in red, even if there are
+        -- positive buffs. Otherwise show the number in green
+        if (negBuff < 0) then
+            return RED_FONT_COLOR_CODE .. effective .. FONT_COLOR_CODE_CLOSE;
+        else
+            return GREEN_FONT_COLOR_CODE .. effective .. FONT_COLOR_CODE_CLOSE;
+        end
+    end
 end
 
 function AS.GetStatTooltipText(name, base, posBuff, negBuff)
-	local effective = max(0,base + posBuff + negBuff);
-	local tooltipRow1 = HIGHLIGHT_FONT_COLOR_CODE..name.." "..effective;
-	if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then
-		tooltipRow1 = tooltipRow1..FONT_COLOR_CODE_CLOSE;		
-	else 
-		if ( posBuff > 0 or negBuff < 0 ) then
-			tooltipRow1 = tooltipRow1.." ("..base..FONT_COLOR_CODE_CLOSE;
-		end
-		if ( posBuff > 0 ) then
-			tooltipRow1 = tooltipRow1..FONT_COLOR_CODE_CLOSE..GREEN_FONT_COLOR_CODE.."+"..posBuff..FONT_COLOR_CODE_CLOSE;
-		end
-		if ( negBuff < 0 ) then
-			tooltipRow1 = tooltipRow1..RED_FONT_COLOR_CODE.." "..negBuff..FONT_COLOR_CODE_CLOSE;
-		end
-		if ( posBuff > 0 or negBuff < 0 ) then
-			tooltipRow1 = tooltipRow1..HIGHLIGHT_FONT_COLOR_CODE..")"..FONT_COLOR_CODE_CLOSE;
-		end
+    local effective = max(0, base + posBuff + negBuff);
+    local tooltipRow1 = HIGHLIGHT_FONT_COLOR_CODE .. name .. " " .. effective;
+    if ((posBuff == 0) and (negBuff == 0)) then
+        tooltipRow1 = tooltipRow1 .. FONT_COLOR_CODE_CLOSE;
+    else
+        if (posBuff > 0 or negBuff < 0) then
+            tooltipRow1 = tooltipRow1 .. " (" .. base .. FONT_COLOR_CODE_CLOSE;
+        end
+        if (posBuff > 0) then
+            tooltipRow1 = tooltipRow1 .. FONT_COLOR_CODE_CLOSE .. GREEN_FONT_COLOR_CODE .. "+" .. posBuff ..
+                              FONT_COLOR_CODE_CLOSE;
+        end
+        if (negBuff < 0) then
+            tooltipRow1 = tooltipRow1 .. RED_FONT_COLOR_CODE .. " " .. negBuff .. FONT_COLOR_CODE_CLOSE;
+        end
+        if (posBuff > 0 or negBuff < 0) then
+            tooltipRow1 = tooltipRow1 .. HIGHLIGHT_FONT_COLOR_CODE .. ")" .. FONT_COLOR_CODE_CLOSE;
+        end
     end
-    
+
     local tooltipRow2;
     if (name == "Attack Power") then
-        tooltipRow2 = "Increases your damage with melee weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
+        tooltipRow2 = "Increases your damage with melee weapons by " ..
+                          format("%.1F", ((base + posBuff + negBuff) / 14)) .. " damage per second";
     elseif (name == "Armor") then
         tooltipRow2 = GetArmorDetailText(base, posBuff, negBuff);
     elseif (name == "Defense") then
         tooltipRow2 = GetDefenseDetailText(base, posBuff, negBuff);
     elseif (name == "Ranged Attack Power") then
-        tooltipRow2 = "Increases your damage with ranged weapons by "..format("%.1F", ((base + posBuff + negBuff) / 14)).." damage per second";
+        tooltipRow2 = "Increases your damage with ranged weapons by " ..
+                          format("%.1F", ((base + posBuff + negBuff) / 14)) .. " damage per second";
     end
 
-	return tooltipRow1, tooltipRow2;
+    return tooltipRow1, tooltipRow2;
 end
 
 function AS.ShowStatTooltip(self)
-    if (not (self.tooltipRow1) and not(self.tooltipSpecialCase)) then
+    if (not (self.tooltipRow1) and not (self.tooltipSpecialCase)) then
         return;
     end
 
     -- If the tooltip is super special, it can handle its own nonsense. Let it take over and bail out.
-    if (self.tooltipSpecialCase) then        
+    if (self.tooltipSpecialCase) then
         self.tooltipSpecialCase(self);
         return;
     end
@@ -183,10 +187,10 @@ function AnachronismStats_OpenStats_OnClick()
         SetMainFrameVisible(false);
     else
         SetMainFrameVisible(true);
-    end       
+    end
 end
 
-function AnachronismStats_OpenStats_OnLoad(self)        
+function AnachronismStats_OpenStats_OnLoad(self)
     SquareButton_SetIcon(self, "RIGHT");
 end
 
@@ -207,29 +211,29 @@ function AnachronismStats_Frame_OnMouseWheel(self, delta)
 end
 
 function AnachronismStats_Frame_OnLoad(self)
-    print("AnachronismStats Loaded!");    
-    SetMainFrameVisible(false);    
+    print("AnachronismStats Loaded!");
+    SetMainFrameVisible(false);
     AS.ContainerFrame = AnachronismStatsContent;
 
-	self:RegisterEvent("UNIT_RESISTANCES");
-	self:RegisterEvent("UNIT_STATS");
-	self:RegisterEvent("UNIT_DAMAGE");
-	self:RegisterEvent("UNIT_RANGEDDAMAGE");
-	self:RegisterEvent("PLAYER_DAMAGE_DONE_MODS");
-	self:RegisterEvent("UNIT_ATTACK_SPEED");
-	self:RegisterEvent("UNIT_ATTACK_POWER");
-	self:RegisterEvent("UNIT_RANGED_ATTACK_POWER");
-	self:RegisterEvent("UNIT_ATTACK");	
+    self:RegisterEvent("UNIT_RESISTANCES");
+    self:RegisterEvent("UNIT_STATS");
+    self:RegisterEvent("UNIT_DAMAGE");
+    self:RegisterEvent("UNIT_RANGEDDAMAGE");
+    self:RegisterEvent("PLAYER_DAMAGE_DONE_MODS");
+    self:RegisterEvent("UNIT_ATTACK_SPEED");
+    self:RegisterEvent("UNIT_ATTACK_POWER");
+    self:RegisterEvent("UNIT_RANGED_ATTACK_POWER");
+    self:RegisterEvent("UNIT_ATTACK");
     self:RegisterEvent("SKILL_LINES_CHANGED");
     self:RegisterEvent("UPDATE_SHAPESHIFT_FORMS");
     self:RegisterEvent("UNIT_AURA");
     self:RegisterEvent("UNIT_POWER_UPDATE");
-    
+
     -- Queue one initial update
     self:SetScript("OnUpdate", AnachronismStats_Frame_QueuedUpdate);
 
     -- Hook ShowSubFrame so that we get closed if any other tab gets opened.
-    CharacterFrame_ShowSubFrame = function(frameName)        
+    CharacterFrame_ShowSubFrame = function(frameName)
         if (frameName ~= "PaperDollItemsFrame") then
             SetMainFrameVisible(false);
         end
@@ -253,7 +257,7 @@ end
 -- Make sure we batch event updates to only happen once-per-frame.
 function AnachronismStats_Frame_QueuedUpdate(self)
     -- Clear the queued update.
-    self:SetScript("OnUpdate", nil);    
+    self:SetScript("OnUpdate", nil);
     UpdateStatFrames();
 end
 

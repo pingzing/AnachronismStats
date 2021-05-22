@@ -1,0 +1,7 @@
+{
+    "luahelper.Warn.CheckErrorOrAlwaysTrue": true,
+    "luahelper.Warn.CheckErrorAndAlwaysFalse": true,
+    "luahelper.Warn.CheckLocalNoUse": true,
+    "luahelper.Warn.CheckNoUseAssign": true,
+    "vscode-lua-format.configPath": ".luaconfig"
+}
