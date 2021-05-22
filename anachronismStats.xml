@@ -7,16 +7,16 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
   <Button name="AS_OpenStats" inherits="UIPanelSquareButton" motionScriptsWhileDisabled="false" parent="PaperDollFrame">
     <Anchors>
       <Anchor point="TOPLEFT" relativeTo="PaperDollFrame" relativePoint="TOPLEFT">
-        <Offset>
-          <AbsDimension x="306" y="-40" />
-        </Offset>
+        <Offset x="320" y="-42" />
       </Anchor>
     </Anchors>
     <Scripts>
       <OnClick function="AnachronismStats_OpenStats_OnClick" />
       <OnEnter>
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-        GameTooltip:SetText(MicroButtonTooltipText("Anachronism Stats", ""), 1.0,1.0,1.0 );
+        GameTooltip:SetText("Anachronism Stats", 1.0,1.0,1.0 );
+        GameTooltip:AddLine("View all your stats in a single, scrollable panel.", NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
+        GameTooltip:Show();
       </OnEnter>
       <OnClick function="AnachronismStats_OpenStats_OnClick" />
       <OnLeave function="GameTooltip_Hide" />
@@ -42,6 +42,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
     </Scripts>
     <Layers>
       <Layer level="BACKGROUND">
+        <!-- Top border and corners -->
         <Texture name="AS_StatBackgroundTop" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
           <Size>
             <AbsDimension x="150" y="16" />
@@ -55,9 +56,10 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           </Anchors>
           <TexCoords left="0" right="0.8984375" top="0" bottom="0.125" />
         </Texture>
+        <!-- Middle, with straight sides -->
         <Texture name="AS_StatBackgoundMiddle" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
           <Size>
-            <AbsDimension x="150" y="392" />
+            <AbsDimension x="150" y="393" />
           </Size>
           <Anchors>
             <Anchor point="TOPLEFT" relativeTo="AS_StatBackgroundTop" relativePoint="BOTTOMLEFT">
@@ -68,6 +70,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           </Anchors>
           <TexCoords left="0" right="0.8984375" top="0.125" bottom="0.1953125" />
         </Texture>
+        <!-- Bottom border and corners -->
         <Texture name="AD_StatBackgroundBottom" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
           <Size>
             <AbsDimension x="150" y="16" />
@@ -116,7 +119,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           <!-- Frame that contains the actual stats. -->
           <Frame name="AnachronismStatsContent">
             <Size x="130" y="415" />
-            
+
             <!-- All child frames are parented to this frame in their own Lua OnLoad functions. -->
 
           </Frame>

@@ -106,9 +106,20 @@ local function GetRangedWeaponSkillDetails(skillBase, skillMod, playerLevel)
     return wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2;
 end
 
+local function OnUpArrow_Click()
+    AS.StatPanel_UpArrow_OnClick(AS_RangedContainerFrame);
+end
+
+local function OnDownArrow_Click()
+    AS.StatPanel_DownArrow_OnClick(AS_RangedContainerFrame);
+end
+
 function AnachronismStats_RangedPanel_OnLoad(self)
     local containerFrame = AS.ContainerFrame;
     self:SetParent(containerFrame);
+
+    AS_RangedHeaderFrame.UpArrow:SetScript("OnClick", OnUpArrow_Click);
+    AS_RangedHeaderFrame.DownArrow:SetScript("OnClick", OnDownArrow_Click);
 end
 
 function AS.Frame_SetRanged(playerLevel)
@@ -185,4 +196,8 @@ function AS.Frame_SetRanged(playerLevel)
     rangedWepSkillFrame.ValueFrame.Value:SetText(wepSkillText);
     rangedWepSkillFrame.tooltipRow1 = wepSkillTooltipRow1;
     rangedWepSkillFrame.tooltipRow2 = wepSkillTooltipRow2;
+end
+
+function AS.GetRangedPanel()
+    return AS_RangedContainerFrame;
 end

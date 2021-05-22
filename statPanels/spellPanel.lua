@@ -39,9 +39,20 @@ local function SpellSpellCritTooltip(self)
     GameTooltip:Show();
 end
 
+local function OnUpArrow_Click()
+    AS.StatPanel_UpArrow_OnClick(AS_SpellContainerFrame);
+end
+
+local function OnDownArrow_Click()
+    AS.StatPanel_DownArrow_OnClick(AS_SpellContainerFrame);
+end
+
 function AnachronismStats_SpellPanel_OnLoad(self)
     local containerFrame = AS.ContainerFrame;
     self:SetParent(containerFrame);
+
+    AS_SpellHeaderFrame.UpArrow:SetScript("OnClick", OnUpArrow_Click);
+    AS_SpellHeaderFrame.DownArrow:SetScript("OnClick", OnDownArrow_Click);
 end
 
 function AS.Frame_SetSpell(playerLevel)
@@ -110,4 +121,8 @@ function AS.Frame_SetSpell(playerLevel)
                 (floor(mp5FromSpirit * (percentWhileCasting / 100))) ..
                 " mana regenerated every 5 seconds while casting (from Spirit)";
     end
+end
+
+function AS.GetSpellPanel()
+    return AS_SpellContainerFrame;
 end

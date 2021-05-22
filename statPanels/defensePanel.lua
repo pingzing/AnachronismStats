@@ -26,9 +26,20 @@ function GetDefenseDetailText(base, posBuff, negBuff)
     return detailText;
 end
 
+local function OnUpArrow_Click()
+    AS.StatPanel_UpArrow_OnClick(AS_DefensesContainerFrame);
+end
+
+local function OnDownArrow_Click()
+    AS.StatPanel_DownArrow_OnClick(AS_DefensesContainerFrame);
+end
+
 function AnachronismStats_DefensePanel_OnLoad(self)
     local containerFrame = AS.ContainerFrame;
     self:SetParent(containerFrame);
+
+    AS_DefensesHeaderFrame.UpArrow:SetScript("OnClick", OnUpArrow_Click);
+    AS_DefensesHeaderFrame.DownArrow:SetScript("OnClick", OnDownArrow_Click);
 end
 
 function AS.Frame_SetDefenses(playerLevel)
@@ -76,4 +87,8 @@ function AS.Frame_SetDefenses(playerLevel)
     parryFrame.tooltipRow2 =
         "Increases your chance to parry by " .. parryChanceText .. " against level " .. playerLevel .. " targets";
 
+end
+
+function AS.GetDefensePanel()
+    return AS_DefensesContainerFrame;
 end
