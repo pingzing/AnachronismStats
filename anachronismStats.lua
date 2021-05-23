@@ -18,7 +18,6 @@ AS.ContainerFrame = nil; -- Gets set in OnLoad.
 -- Persisted between sessions via SavedVariablesPerCharacter
 AnachronismStats_PanelPositions = nil;
 
-local _base_ShowSubFrame = CharacterFrame_ShowSubFrame;
 local _isOpen = false;
 
 -- Keys are names, values are references to panels
@@ -319,14 +318,6 @@ function AnachronismStats_Frame_OnLoad(self)
 
     -- Queue one initial update
     self:SetScript("OnUpdate", AnachronismStats_Frame_QueuedUpdate);
-
-    -- Hook ShowSubFrame so that we get closed if any other tab gets opened.
-    CharacterFrame_ShowSubFrame = function(frameName)
-        if (frameName ~= "PaperDollItemsFrame") then
-            SetMainFrameVisible(false);
-        end
-        _base_ShowSubFrame(frameName);
-    end
 end
 
 local function LoadCompleted()
