@@ -168,8 +168,9 @@ function AS.Frame_SetRanged(playerLevel)
     else
         local base, posBuff, negBuff = UnitRangedAttackPower("player");
         rangedPowerFrame.ValueFrame.Value:SetText(AS.GetStatValue(base, posBuff, negBuff));
-        rangedPowerFrame.tooltipRow1, rangedPowerFrame.tooltipRow2 =
-            AS.GetStatTooltipText(rangedPowerFrame.name, base, posBuff, negBuff);
+        rangedPowerFrame.tooltipRow1 = AS.GetStatTooltipText(rangedPowerFrame.name, base, posBuff, negBuff);
+        rangedPowerFrame.tooltipRow2 = "Increases your damage with ranged weapons by " ..
+                                           format("%.1F", ((base + posBuff + negBuff) / 14)) .. " damage per second";
     end
 
     -- Ranged Hit Chance       

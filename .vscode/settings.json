@@ -68,6 +68,8 @@
         "CR_HASTE_RANGED",
         "CR_HASTE_SPELL",
         "CR_EXPERTISE",
-        "GetCombatRating"
+        "GetCombatRating",
+        "UnitArmor",
+        "UnitDefense"
     ]
 }

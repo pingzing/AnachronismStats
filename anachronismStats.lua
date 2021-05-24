@@ -68,8 +68,6 @@ end
 
 -- //// GLOBAL FUNCTIONS ////
 
-
-
 local equipmentSlots = {
     1, -- head
     2, -- neck
@@ -142,20 +140,7 @@ function AS.GetStatTooltipText(name, base, posBuff, negBuff)
         end
     end
 
-    local tooltipRow2;
-    if (name == "Attack Power") then
-        tooltipRow2 = "Increases your damage with melee weapons by " ..
-                          format("%.1F", ((base + posBuff + negBuff) / 14)) .. " damage per second";
-    elseif (name == "Armor") then
-        tooltipRow2 = GetArmorDetailText(base, posBuff, negBuff);
-    elseif (name == "Defense") then
-        tooltipRow2 = GetDefenseDetailText(base, posBuff, negBuff);
-    elseif (name == "Ranged Attack Power") then
-        tooltipRow2 = "Increases your damage with ranged weapons by " ..
-                          format("%.1F", ((base + posBuff + negBuff) / 14)) .. " damage per second";
-    end
-
-    return tooltipRow1, tooltipRow2;
+    return tooltipRow1;
 end
 
 function AS.ShowStatTooltip(self)
@@ -191,7 +176,7 @@ function AS.StatPanel_UpArrow_OnClick(panel)
 end
 
 function AS.StatPanel_DownArrow_OnClick(panel)
-    local panelPositions =  GetOrLoadPanelPositions();
+    local panelPositions = GetOrLoadPanelPositions();
     local panelPosition = GetPanelPosition(panelPositions, panel:GetName());
     if (panelPosition == -1 or panelPosition == 5) then
         -- We're either at the bottom, or got an invalid position

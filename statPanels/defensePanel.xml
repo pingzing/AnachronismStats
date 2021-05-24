@@ -4,7 +4,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
 
   <!-- Defenses container frame -->
   <Frame name="AS_DefensesContainerFrame" inherits="AS_HeaderFrameTemplate">
-    <Size x="130" y="80" />
+    <Size x="130" y="93" />
     <Anchors>
       <Anchor point="TOPLEFT" relativeTo="AnachronismStatsContent" relativePoint="TOPLEFT">
         <Offset x="5" y="-250" />
@@ -106,6 +106,20 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           <OnLoad>
             self.Label:SetText("Parry:");
             self.name = "Parry";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Avoidance & Mitigation -->
+      <Frame name="AS_DefensesLabelFrame6" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_DefensesLabelFrame5">
+            <Offset x="0" y="-12" />
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Avoidance: ");
+            self.name = "Avoidance";
           </OnLoad>
         </Scripts>
       </Frame>

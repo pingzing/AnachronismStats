@@ -202,7 +202,9 @@ function AS.Frame_SetMelee(playerLevel)
     local apFrame = AS_MeleeLabelFrame3;
     local base, posBuff, negBuff = UnitAttackPower("player");
     apFrame.ValueFrame.Value:SetText(AS.GetStatValue(base, posBuff, negBuff));
-    apFrame.tooltipRow1, apFrame.tooltipRow2 = AS.GetStatTooltipText(apFrame.name, base, posBuff, negBuff);
+    apFrame.tooltipRow1 = AS.GetStatTooltipText(apFrame.name, base, posBuff, negBuff);
+    apFrame.tooltipRow2 = "Increases your damage with melee weapons by " ..
+                              format("%.1F", ((base + posBuff + negBuff) / 14)) .. " damage per second";
 
     -- Hit Chance
     local hitFrame = AS_MeleeLabelFrame4;
@@ -219,14 +221,14 @@ function AS.Frame_SetMelee(playerLevel)
     local critFrame = AS_MeleeLabelFrame5;
     local critChance = GetCritChance();
     local critRating = GetCombatRating(AS.RatingIds.MeleeCrit);
-    local critFromRating = GetCombatRatingBonus(AS.RatingIds.MeleeCrit);    
+    local critFromRating = GetCombatRatingBonus(AS.RatingIds.MeleeCrit);
     -- TODO: Get crit for per-weapon talents. Lotta AS.CLASSES have those.
     local critText = format("%.2F", critChance) .. "%";
     critFrame.ValueFrame.Value:SetText(critText);
     critFrame.tooltipRow1 = "Critical Hit Chance " .. critText;
     critFrame.tooltipRow2 = "Increases your melee chance to crit a target of level " .. playerLevel .. " by " ..
-                                critText ..
-                                "\nCrit rating: " .. critRating .. " (+" .. format("%.2F",critFromRating) .. "% to crit)";
+                                critText .. "\nCrit rating: " .. critRating .. " (+" .. format("%.2F", critFromRating) ..
+                                "% to crit)";
 
     -- Expertise
     local expertiseFrame = AS_MeleeLabelFrame6;
