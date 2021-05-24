@@ -138,8 +138,18 @@ function AS.Frame_SetSpell(playerLevel)
     healingFrame.tooltipRow1 = "Bonus Healing " .. bonusHealing
     healingFrame.tooltipRow2 = "Increase your healing by up to " .. bonusHealing;
 
+    -- Spell Haste
+    local spellHasteFrame = AS_SpellLabelFrame3;
+    local spellHastePercent = GetCombatRatingBonus(AS.RatingIds.SpellHaste);
+    local spellHasteRating = GetCombatRating(AS.RatingIds.SpellHaste);
+    spellHasteFrame.ValueFrame.Value:SetText(spellHastePercent .. "%");
+    spellHasteFrame.tooltipRow1 = "Spell Haste " .. format("%.2F", spellHastePercent) .. "%";
+    spellHasteFrame.tooltipRow2 = "Increases the speed that you cast your spells by " ..
+                                      format("%.2F", spellHastePercent) .. "%" .. "\nSpell haste rating: " ..
+                                      spellHasteRating .. " (+" .. format("%.2F", spellHastePercent) .. "%)";
+
     -- Spell Hit
-    local spellHitFrame = AS_SpellLabelFrame3;
+    local spellHitFrame = AS_SpellLabelFrame4;
     local baseSpellHitPercent = GetSpellHitModifier();
     local spellHitRating = GetCombatRating(AS.RatingIds.SpellHit);
     local spellHitFromRating = GetCombatRatingBonus(AS.RatingIds.SpellHit);
@@ -151,14 +161,14 @@ function AS.Frame_SetSpell(playerLevel)
                                     format("%.2F", spellHitFromRating) .. "% to hit)";
 
     -- Spell Crit
-    local spellCritFrame = AS_SpellLabelFrame4;
+    local spellCritFrame = AS_SpellLabelFrame5;
     local normalSpellCritPercent = format("%.2F", GetSpellCritChance(1));
     spellCritFrame.normalSpellCritPercent = normalSpellCritPercent;
     spellCritFrame.ValueFrame.Value:SetText(normalSpellCritPercent .. "%");
     spellCritFrame.tooltipSpecialCase = SpellCritTooltip;
 
     -- Mana regen    
-    local manaRegenFrame = AS_SpellLabelFrame5;
+    local manaRegenFrame = AS_SpellLabelFrame6;
     local _, classFileName = UnitClass("player");
     if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
         manaRegenFrame.ValueFrame.Value:SetText("--");

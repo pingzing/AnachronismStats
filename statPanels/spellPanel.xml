@@ -4,7 +4,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
 
   <!-- Spell container frame-->
   <Frame name="AS_SpellContainerFrame" inherits="AS_HeaderFrameTemplate">
-    <Size x="130" y="80" />
+    <Size x="130" y="93" />
     <Anchors>
       <Anchor point="TOPLEFT" relativeTo="AnachronismStatsContent" relativePoint="TOPLEFT">
         <Offset x="5" y="-170" />
@@ -60,10 +60,26 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           </OnLoad>
         </Scripts>
       </Frame>
-      <!-- Hit -->
+      <!-- Haste -->
       <Frame name="AS_SpellLabelFrame3" inherits="AS_StatFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame2">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Haste: ");
+            self.name = "Spell Haste";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Hit -->
+      <Frame name="AS_SpellLabelFrame4" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame3">
             <Offset>
               <AbsDimension x="0" y="-12" />
             </Offset>
@@ -77,9 +93,9 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
         </Scripts>
       </Frame>
       <!-- Crit -->
-      <Frame name="AS_SpellLabelFrame4" inherits="AS_StatFrameTemplate">
+      <Frame name="AS_SpellLabelFrame5" inherits="AS_StatFrameTemplate">
         <Anchors>
-          <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame3">
+          <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame4">
             <Offset>
               <AbsDimension x="0" y="-12" />
             </Offset>
@@ -93,9 +109,9 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
         </Scripts>
       </Frame>
       <!-- Regen -->
-      <Frame name="AS_SpellLabelFrame5" inherits="AS_StatFrameTemplate">
+      <Frame name="AS_SpellLabelFrame6" inherits="AS_StatFrameTemplate">
         <Anchors>
-          <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame4">
+          <Anchor point="TOPLEFT" relativeTo="AS_SpellLabelFrame5">
             <Offset>
               <AbsDimension x="0" y="-12" />
             </Offset>
