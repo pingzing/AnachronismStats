@@ -118,7 +118,7 @@ function AS.Frame_SetDefenses(playerLevel)
     local mitigationChanceText = format("%.2F", totalMitigation) .. "%";
 
     avoidanceFrame.ValueFrame.Value:SetText(avoidanceChanceText);
-    avoidanceFrame.tooltipRow1 = "Avoidance: " .. avoidanceChanceText;
+    avoidanceFrame.tooltipRow1 = "Avoidance " .. avoidanceChanceText;
     avoidanceFrame.tooltipRow2 = "Total chance to completely avoid damage from an enemy's melee attack" ..
                                      "\n\nMitigation (includes Block): " .. mitigationChanceText ..
                                      "\n\nChance to be crushed against a level " .. playerLevel + 3 .. " enemy: " ..
