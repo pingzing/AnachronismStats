@@ -1,17 +1,5 @@
 local addonName, AS = ...; -- Get addon name and shared table.
 
-AS.MAX_LEVEL = 70;
-AS.CLASSES = {
-    Warrior = "WARRIOR",
-    Rogue = "ROGUE",
-    Paladin = "PALADIN",
-    Warlock = "WARLOCK",
-    Mage = "MAGE",
-    Shaman = "SHAMAN",
-    Druid = "DRUID",
-    Priest = "PRIEST",
-    Hunter = "HUNTER",
-};
 AS.ContainerFrame = nil; -- Gets set in OnLoad.
 
 -- Keys are integer position, value is string name of panel.
@@ -80,45 +68,7 @@ end
 
 -- //// GLOBAL FUNCTIONS ////
 
--- TODO: Update for BC
-function AS.GetMp5FromSpirit(spirit, class)
-    -- Priests and mages: 13 + (spirit / 4) mana per tick
-    if (class == AS.CLASSES.Priest or class == AS.CLASSES.Mage) then
-        return (13 + (spirit / 4)) * 2.5; -- Multiplied by 2.5 as these values are per tick, and ticks are 2s each.
-        -- Druids, shamans, paladins, hunters: 15 + (spirit / 5) mana per tick
-    elseif (class == AS.CLASSES.Druid or class == AS.CLASSES.Shaman or class == AS.CLASSES.Paladin or class ==
-        AS.CLASSES.Hunter) then
-        return (15 + (spirit / 5)) * 2.5;
-        -- Warlocks: 12 + (spirit / 4) mana per tick (Historical data claims 8 + spir..., but actual testing seems to imply 12? maybe it changes at level 60)
-    elseif (class == AS.CLASSES.Warlock) then
-        return (12 + (spirit / 4)) * 2.5;
-    else
-        return 0;
-    end
-end
 
--- TODO: Update for BC
-function AS.GetPercentRegenWhileCasting(class)
-    -- We need to check three possible talents:
-    -- Meditation (Priest), Arcane Meditation (Mage), Reflection (Druid).
-    -- TODO: Should also check mage for Mage Armor
-    -- There are a handful of talented/trinket/set bonus/etc short-term buffs we could check too, but ehhhhhh
-    if (class == AS.CLASSES.Priest) then
-        -- check for ranks of Meditation
-        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(1, 8);
-        return ranks * 5;
-    elseif (class == AS.CLASSES.Mage) then
-        -- check for ranks of Arcane Meditation
-        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(1, 12);
-        return ranks * 5;
-    elseif (class == AS.CLASSES.Druid) then
-        -- check for ranks of Reflection
-        local _, _, _, _, ranks, _, _, _ = GetTalentInfo(3, 6);
-        return ranks * 5;
-    end
-
-    return 0;
-end
 
 local equipmentSlots = {
     1, -- head

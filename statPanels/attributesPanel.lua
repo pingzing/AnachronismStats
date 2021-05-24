@@ -3,36 +3,36 @@ AnachronismStats = AS -- Globalized, so XML can see it
 
 -- All these tables assume level 60.
 local INT_PER_SPELLCRIT = {
-    PALADIN = 54, -- This is controversial. Some old posts claim 29.5, but I'm skeptical.
-    WARLOCK = 60.6,
-    DRUID = 60.0,
-    SHAMAN = 59.5,
-    MAGE = 59.5,
-    PRIEST = 59.2,
+    PALADIN = 79.4,
+    WARLOCK = 81.9,
+    DRUID = 79.4,
+    SHAMAN = 78.1,
+    MAGE = 81,
+    PRIEST = 80,
 };
 
 local AGI_PER_CRIT = {
-    WARRIOR = 20,
-    ROGUE = 29,
-    PALADIN = 20,
-    WARLOCK = 20,
-    MAGE = 20,
-    SHAMAN = 20,
-    DRUID = 20,
-    PRIEST = 20,
-    HUNTER = 53,
+    WARRIOR = 33,
+    ROGUE = 40,
+    PALADIN = 25,
+    WARLOCK = 25,
+    MAGE = 25,
+    SHAMAN = 25,
+    DRUID = 25,
+    PRIEST = 25,
+    HUNTER = 40,
 };
 
 local AGI_PER_DODGE = {
-    WARRIOR = 20,
-    ROGUE = 14.5,
-    PALADIN = 20,
-    WARLOCK = 20,
-    MAGE = 20,
-    SHAMAN = 20,
-    DRUID = 20,
-    PRIEST = 20,
-    HUNTER = 26.5,
+    WARRIOR = 30,
+    ROGUE = 20,
+    PALADIN = 25,
+    WARLOCK = 25,
+    MAGE = 25,
+    SHAMAN = 25,
+    DRUID = 25,
+    PRIEST = 25,
+    HUNTER = 25,
 }
 
 local function GetStrengthDetailText(base, current, posBuff, negBuff, playerLevel)

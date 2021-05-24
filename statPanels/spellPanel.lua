@@ -11,7 +11,42 @@ local SPELL_SCHOOL_NAMES = {
     [7] = "Arcane",
 };
 
-local function SpellSpellDamageTooltip(self)
+-- Pet scaling:
+HUNTER_PET_BONUS = {};
+HUNTER_PET_BONUS["PET_BONUS_RAP_TO_AP"] = 0.22;
+HUNTER_PET_BONUS["PET_BONUS_RAP_TO_SPELLDMG"] = 0.1287;
+HUNTER_PET_BONUS["PET_BONUS_STAM"] = 0.3;
+HUNTER_PET_BONUS["PET_BONUS_RES"] = 0.4;
+HUNTER_PET_BONUS["PET_BONUS_ARMOR"] = 0.35;
+HUNTER_PET_BONUS["PET_BONUS_SPELLDMG_TO_SPELLDMG"] = 0.0;
+HUNTER_PET_BONUS["PET_BONUS_SPELLDMG_TO_AP"] = 0.0;
+HUNTER_PET_BONUS["PET_BONUS_INT"] = 0.0;
+
+WARLOCK_PET_BONUS = {};
+WARLOCK_PET_BONUS["PET_BONUS_RAP_TO_AP"] = 0.0;
+WARLOCK_PET_BONUS["PET_BONUS_RAP_TO_SPELLDMG"] = 0.0;
+WARLOCK_PET_BONUS["PET_BONUS_STAM"] = 0.3;
+WARLOCK_PET_BONUS["PET_BONUS_RES"] = 0.4;
+WARLOCK_PET_BONUS["PET_BONUS_ARMOR"] = 0.35;
+WARLOCK_PET_BONUS["PET_BONUS_SPELLDMG_TO_SPELLDMG"] = 0.15;
+WARLOCK_PET_BONUS["PET_BONUS_SPELLDMG_TO_AP"] = 0.57;
+WARLOCK_PET_BONUS["PET_BONUS_INT"] = 0.3;
+
+local function CalculatePetBonus(stat, value, class)
+    if (class == AS.CLASSES.Warlock) then
+        if (WARLOCK_PET_BONUS[stat]) then
+            return value * WARLOCK_PET_BONUS[stat];
+        end
+    elseif (class == AS.CLASSES.Hunter) then
+        if (HUNTER_PET_BONUS[stat]) then
+            return value * HUNTER_PET_BONUS[stat];
+        end
+    end
+
+    return 0
+end
+
+local function SpellDamageTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
     GameTooltip:SetText("Bonus Damage " .. self.normalSpellDamage, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g,
                         HIGHLIGHT_FONT_COLOR.b);
@@ -21,11 +56,35 @@ local function SpellSpellDamageTooltip(self)
         GameTooltip:AddDoubleLine(SPELL_SCHOOL_NAMES[i], schoolDamage, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g,
                                   NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g,
                                   HIGHLIGHT_FONT_COLOR.b);
+        GameTooltip:AddTexture("Interface\\PaperDollInfoFrame\\SpellSchoolIcon" .. i);
     end
+
+    -- Warlock-specific stuff
+    local _, classFileName = UnitClass("player");
+    if (classFileName == AS.CLASSES.Warlock) then
+        local fireDamage = GetSpellBonusDamage(3);
+        local shadowDamage = GetSpellBonusDamage(6);
+        local petString, highestDamageValue;
+        if shadowDamage > fireDamage then
+            petString = PET_BONUS_TOOLTIP_WARLOCK_SPELLDMG_SHADOW; -- Magic global format string
+            highestDamageValue = shadowDamage;
+        else
+            petString = PET_BONUS_TOOLTIP_WARLOCK_SPELLDMG_FIRE -- Other magic global format string
+            highestDamageValue = fireDamage;
+        end
+
+        local petBonusAP = CalculatePetBonus("PET_BONUS_SPELLDMG_TO_AP", highestDamageValue, AS.CLASSES.Warlock);
+        local petBonusSpellDamage = CalculatePetBonus("PET_BONUS_SPELLDMG_TO_SPELLDMG", highestDamageValue,
+                                                      AS.CLASSES.Warlock);
+        if (petBonusAP > 0 or petBonusSpellDamage > 0) then
+            GameTooltip:AddLine("\n" .. format(petString, petBonusAP, petBonusSpellDamage), nil, nil, nil, 1);
+        end
+    end
+
     GameTooltip:Show();
 end
 
-local function SpellSpellCritTooltip(self)
+local function SpellCritTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
     GameTooltip:SetText("Spell Crit Chance " .. self.normalSpellCritPercent .. "%", HIGHLIGHT_FONT_COLOR.r,
                         HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
@@ -35,7 +94,9 @@ local function SpellSpellCritTooltip(self)
         GameTooltip:AddDoubleLine(SPELL_SCHOOL_NAMES[i], format("%.2F", schoolCrit) .. "%", NORMAL_FONT_COLOR.r,
                                   NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r,
                                   HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+        GameTooltip:AddTexture("Interface\\PaperDollInfoFrame\\SpellSchoolIcon" .. i);
     end
+
     GameTooltip:Show();
 end
 
@@ -68,7 +129,7 @@ function AS.Frame_SetSpell(playerLevel)
     end
     spellDamageFrame.normalSpellDamage = highestSpellDamage;
     spellDamageFrame.ValueFrame.Value:SetText(highestSpellDamage);
-    spellDamageFrame.tooltipSpecialCase = SpellSpellDamageTooltip;
+    spellDamageFrame.tooltipSpecialCase = SpellDamageTooltip;
 
     -- Healing
     local healingFrame = AS_SpellLabelFrame2;
@@ -79,21 +140,24 @@ function AS.Frame_SetSpell(playerLevel)
 
     -- Spell Hit
     local spellHitFrame = AS_SpellLabelFrame3;
-    local spellHitPercent = GetSpellHitModifier();
-    spellHitFrame.ValueFrame.Value:SetText(spellHitPercent .. "%");
-    spellHitFrame.tooltipRow1 = "Spell Hit Chance " .. spellHitPercent .. "%";
+    local baseSpellHitPercent = GetSpellHitModifier();
+    local spellHitRating = GetCombatRating(AS.RatingIds.SpellHit);
+    local spellHitFromRating = GetCombatRatingBonus(AS.RatingIds.SpellHit);
+    local totalSpellHit = baseSpellHitPercent + spellHitFromRating;
+    spellHitFrame.ValueFrame.Value:SetText(totalSpellHit .. "%");
+    spellHitFrame.tooltipRow1 = "Spell Hit Chance " .. totalSpellHit .. "%";
     spellHitFrame.tooltipRow2 = "Increases your chance to hit a level " .. playerLevel .. " target with spells by " ..
-                                    spellHitPercent .. "%";
+                                    totalSpellHit .. "%" .. "\nSpell Hit rating: " .. spellHitRating .. " (+" ..
+                                    format("%.2F", spellHitFromRating) .. "% to hit)";
 
     -- Spell Crit
     local spellCritFrame = AS_SpellLabelFrame4;
     local normalSpellCritPercent = format("%.2F", GetSpellCritChance(1));
     spellCritFrame.normalSpellCritPercent = normalSpellCritPercent;
     spellCritFrame.ValueFrame.Value:SetText(normalSpellCritPercent .. "%");
-    spellCritFrame.tooltipSpecialCase = SpellSpellCritTooltip;
+    spellCritFrame.tooltipSpecialCase = SpellCritTooltip;
 
-    -- Mana regen
-    -- Note that this is "Regen right this second", as retreived by GetManaRegen("player").
+    -- Mana regen    
     local manaRegenFrame = AS_SpellLabelFrame5;
     local _, classFileName = UnitClass("player");
     if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
@@ -101,25 +165,15 @@ function AS.Frame_SetSpell(playerLevel)
         manaRegenFrame.tooltipRow1 = "Mana Regeneration 0";
         manaRegenFrame.tooltipRow2 = "You have no mana. Why are you here?";
     else
-        -- GetManaRegen("player") just returns regen at-the-moment, so we have to calculate all this ourselves.
-        -- Also note: GetManaRegen() does not seem to include temporary regen-while-casting buffs, like Soul Siphon from Improved Drain Soul
-        -- Possible TODO: Somehow calculate all other sources of MP5. How? Manual list of whitelisted buff IDs?
-        -- Would need all possible short-term +Mana Regen, "Allow regen while casting" and +MP5 buffs. Eugh.
-        local _, spirit, _, _ = UnitStat("player", 5);
-        local mp5FromItems = AS.GetMp5FromEquippedItems();
-        local _, mp5RightNow = GetManaRegen("player"); -- Returns Mana Per 1, instead of Mana per 5
-        mp5RightNow = mp5RightNow * 5; -- Correct for MP1
-        mp5RightNow = mp5RightNow + mp5FromItems; -- Add in item contribution
-        local mp5RightNowText = format("%.0F", mp5RightNow);
-        local mp5FromSpirit = floor(AS.GetMp5FromSpirit(spirit, classFileName));
-        local percentWhileCasting = AS.GetPercentRegenWhileCasting(classFileName);
-        manaRegenFrame.ValueFrame.Value:SetText(mp5RightNowText);
-        manaRegenFrame.tooltipRow1 = "Mana Regeneration " .. mp5RightNowText;
-        manaRegenFrame.tooltipRow2 =
-            mp5RightNowText .. " mana regen every 5 seconds at this moment\n" .. mp5FromSpirit ..
-                " mana regenerated every 5 seconds while not casting (from Spirit)\n" ..
-                (floor(mp5FromSpirit * (percentWhileCasting / 100))) ..
-                " mana regenerated every 5 seconds while casting (from Spirit)";
+        local notCasting, casting = GetManaRegen("player"); -- Returns MP1, not MP5
+        local notCastingP5 = format("%.0F", notCasting * 5.0);
+        local castingP5 = format("%.0F", casting * 5.0);
+        local mp5Text = notCastingP5 .. " / " .. castingP5;
+        manaRegenFrame.ValueFrame.Value:SetText(mp5Text);
+        manaRegenFrame.tooltipRow1 = "Mana Regeneration " .. mp5Text;
+        manaRegenFrame.tooltipRow2 = notCastingP5 .. " MP/5 while not casting" .. "\n" .. castingP5 ..
+                                         " MP/5 while casting";
+
     end
 end
 

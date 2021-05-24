@@ -108,7 +108,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           </OnLoad>
         </Scripts>
       </Frame>
-      <!-- Wep Skill -->
+      <!-- Expertise -->
       <Frame name="AS_MeleeLabelFrame6" inherits="AS_StatFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame5">
@@ -119,8 +119,8 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
         </Anchors>
         <Scripts>
           <OnLoad>
-            self.Label:SetText("Weapon Skill:");
-            self.name = "Weapon Skill";
+            self.Label:SetText("Expertise:");
+            self.name = "Expertise";
           </OnLoad>
         </Scripts>
       </Frame>

@@ -125,44 +125,35 @@ local function FillOutMeleeDamageFrame(frame)
     return frame;
 end
 
-local function GetWeaponSkillDetails(mainBase, mainMod, hasOffhand, offBase, offMod, playerLevel)
-    local wepSkillText;
-    local wepSkillTooltipRow1;
-    local wepSkillTooltipRow2;
+-- main, hasOffhand, off, offMod, expertiseRating, playerLevel
+local function GetExpertiseDetails(main, hasOffhand, off, expertiseRating, playerLevel)
+    local expertiseText;
+    local expertiseTooltipRow1;
+    local expertiseTooltipRow2;
 
-    wepSkillText = AS.GetStatValue(mainBase, mainMod, 0);
+    expertiseText = AS.GetStatValue(main, 0, 0);
     if (hasOffhand) then
-        wepSkillText = wepSkillText .. " / " .. AS.GetStatValue(offBase, offMod, 0);
+        expertiseText = expertiseText .. " / " .. AS.GetStatValue(off, 0, 0);
     end
 
-    local wepSkillHeader, _ = AS.GetStatTooltipText("Weapon Skill (Main)", mainBase, mainMod, 0);
+    local expertiseHeader, _ = AS.GetStatTooltipText("Expertise (Main Hand)", main, 0, 0);
     if (hasOffhand) then
-        wepSkillHeader = wepSkillHeader .. "\n" .. AS.GetStatTooltipText("Weapon Skill (Off)", offBase, offMod, 0);
+        expertiseHeader = expertiseHeader .. "\n" .. AS.GetStatTooltipText("Expertise (Offhand)", off, 0, 0);
     end
-    wepSkillTooltipRow1 = wepSkillHeader;
+    expertiseTooltipRow1 = expertiseHeader;
 
-    local maxSkillForLevel = playerLevel * 5;
-    -- These might be negative.
-    local bonusSkillMain = mainBase - maxSkillForLevel;
-    local bonusSkillOff = offBase - maxSkillForLevel;
-
-    local mainPercentBonus = format("%.2F", max(0, bonusSkillMain * .04)) .. "%";
-    local offPercentBonus = format("%.2F", max(0, bonusSkillOff * .04)) .. "%";
-    wepSkillTooltipRow2 =
-        "Increases your chance to hit and crit, and reduce chance to be blocked, dodged or parried by " ..
-            mainPercentBonus;
+    local mainPercent = format("%.2F", main * .25) .. "%";
+    local offPercent = format("%.2F", off * .25) .. "%";
+    expertiseTooltipRow2 = "Reduces the chance that your melee attacks will be dodged or parried by " .. mainPercent;
     if (hasOffhand) then
-        wepSkillTooltipRow2 = wepSkillTooltipRow2 .. " / " .. offPercentBonus;
-    end
-    wepSkillTooltipRow2 = wepSkillTooltipRow2 .. " by a level " .. playerLevel .. " enemy";
-    wepSkillTooltipRow2 = wepSkillTooltipRow2 ..
-                              "\nAlso reduces Glancing Blow damage penalty against higher-level enemies by " ..
-                              (max(0, bonusSkillMain * 3)) .. "%";
-    if (hasOffhand) then
-        wepSkillTooltipRow2 = wepSkillTooltipRow2 .. " / " .. (max(0, bonusSkillOff * 3)) .. "%";
+        expertiseTooltipRow2 = expertiseTooltipRow2 .. " / " .. offPercent;
     end
 
-    return wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2;
+    local expertiseFromRating = GetCombatRatingBonus(AS.RatingIds.Expertise);
+    expertiseTooltipRow2 = expertiseTooltipRow2 .. "\nExpertise rating: " .. expertiseRating .. " (+" ..
+                               expertiseFromRating .. " expertise)";
+
+    return expertiseText, expertiseTooltipRow1, expertiseTooltipRow2;
 end
 
 local function OnUpArrow_Click()
@@ -215,33 +206,38 @@ function AS.Frame_SetMelee(playerLevel)
 
     -- Hit Chance
     local hitFrame = AS_MeleeLabelFrame4;
-    local hitFromGear = GetHitModifier();
-    -- TODO: Get hit from talents and weapon skill, and show main/off in tooltip and ValueFrame.
-    hitFrame.ValueFrame.Value:SetText(hitFromGear .. "%");
-    hitFrame.tooltipRow1 = "Hit Chance " .. hitFromGear .. "%";
-    hitFrame.tooltipRow2 = "Increases your melee chance to hit a target of level " .. playerLevel .. " by " ..
-                               hitFromGear .. "%";
+    local hitChance = GetHitModifier();
+    local hitRating = GetCombatRating(AS.RatingIds.MeleeHit);
+    local hitFromRating = GetCombatRatingBonus(AS.RatingIds.MeleeHit);
+    hitFrame.ValueFrame.Value:SetText(hitChance .. "%");
+    hitFrame.tooltipRow1 = "Hit Chance " .. hitChance .. "%";
+    hitFrame.tooltipRow2 =
+        "Increases your melee chance to hit a target of level " .. playerLevel .. " by " .. hitChance .. "%" ..
+            "\nHit rating: " .. hitRating .. " (+" .. format("%.2F", hitFromRating) .. "% to hit)";
 
     -- Crit chance
     local critFrame = AS_MeleeLabelFrame5;
     local critChance = GetCritChance();
-    -- TODO: Get crit from weapon skill. Change ValueFrame and tooltip to show main/off.
-    -- ALSO TODO: Get crit for per-weapon talents. Lotta AS.CLASSES have those.
+    local critRating = GetCombatRating(AS.RatingIds.MeleeCrit);
+    local critFromRating = GetCombatRatingBonus(AS.RatingIds.MeleeCrit);    
+    -- TODO: Get crit for per-weapon talents. Lotta AS.CLASSES have those.
     local critText = format("%.2F", critChance) .. "%";
     critFrame.ValueFrame.Value:SetText(critText);
     critFrame.tooltipRow1 = "Critical Hit Chance " .. critText;
     critFrame.tooltipRow2 = "Increases your melee chance to crit a target of level " .. playerLevel .. " by " ..
-                                critText;
+                                critText ..
+                                "\nCrit rating: " .. critRating .. " (+" .. format("%.2F",critFromRating) .. "% to crit)";
 
-    -- Weapon skill
-    local wepSkillFrame = AS_MeleeLabelFrame6;
-    local mainBase, mainMod, offBase, offMod = UnitAttackBothHands("player");
+    -- Expertise
+    local expertiseFrame = AS_MeleeLabelFrame6;
+    local main, off, _ = GetExpertise();
+    local expertiseRating = GetCombatRating(AS.RatingIds.Expertise);
     local hasOffhand = OffhandHasWeapon();
-    local wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2 =
-        GetWeaponSkillDetails(mainBase, mainMod, hassOffhand, offBase, offMod, playerLevel);
-    wepSkillFrame.ValueFrame.Value:SetText(wepSkillText);
-    wepSkillFrame.tooltipRow1 = wepSkillTooltipRow1;
-    wepSkillFrame.tooltipRow2 = wepSkillTooltipRow2;
+    local expertiseText, expertiseTooltipRow1, expertiseTooltipRow2 =
+        GetExpertiseDetails(main, hasOffhand, off, expertiseRating, playerLevel);
+    expertiseFrame.ValueFrame.Value:SetText(expertiseText);
+    expertiseFrame.tooltipRow1 = expertiseTooltipRow1;
+    expertiseFrame.tooltipRow2 = expertiseTooltipRow2;
 end
 
 function AS.GetMeleePanel()
