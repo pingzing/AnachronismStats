@@ -113,7 +113,7 @@ function AS.Frame_SetDefenses(playerLevel)
     local missedChance = 5.0 + max(0, ((defenseValue + defenseModifier) - currMaxDefense)) * .04; -- 5% missed is baseline for everyone    
     local totalAvoidance = dodgeChance + parryChance + missedChance;
     local totalMitigation = totalAvoidance + blockChance;
-    local crushChance = 102.4;
+    local crushChance = min(15, 102.4 - totalMitigation);
     local avoidanceChanceText = format("%.2F", totalAvoidance) .. "%";
     local mitigationChanceText = format("%.2F", totalMitigation) .. "%";
 
@@ -122,7 +122,7 @@ function AS.Frame_SetDefenses(playerLevel)
     avoidanceFrame.tooltipRow2 = "Total chance to completely avoid damage from an enemy's melee attack" ..
                                      "\n\nMitigation (includes Block): " .. mitigationChanceText ..
                                      "\n\nChance to be crushed against a level " .. playerLevel + 3 .. " enemy: " ..
-                                     format("%.2F", max(0, crushChance - totalMitigation)) .. "%";
+                                     format("%.2F", max(0, crushChance)) .. "%";
 
 end
 
