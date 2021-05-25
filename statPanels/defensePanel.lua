@@ -80,7 +80,7 @@ function AS.Frame_SetDefenses(playerLevel)
     blockFrame.tooltipRow1 = "Block Chance " .. blockChanceText;
     blockFrame.tooltipRow2 =
         "Increases your chance to block by " .. blockChanceText .. " against level " .. playerLevel .. " targets" ..
-            "\nBlock value: " .. blockValue .. "\nBlock rating: " .. blockRating .. " +(" .. blockPercentFromRating ..
+            "\nBlock value: " .. blockValue .. "\nBlock rating: " .. blockRating .. " (+" .. blockPercentFromRating ..
             "% to block)";
 
     -- Dodge
@@ -93,7 +93,7 @@ function AS.Frame_SetDefenses(playerLevel)
     dodgeFrame.tooltipRow1 = "Dodge Chance " .. dodgeChanceText;
     dodgeFrame.tooltipRow2 =
         "Increases your chance to dodge by " .. dodgeChanceText .. " against level " .. playerLevel .. " targets" ..
-            "\nDodge rating: " .. dodgeRating .. " +(" .. dodgePercentFromRating .. "% to dodge)";
+            "\nDodge rating: " .. dodgeRating .. " (+" .. dodgePercentFromRating .. "% to dodge)";
 
     -- Parry
     local parryFrame = AS_DefensesLabelFrame5;
@@ -105,7 +105,7 @@ function AS.Frame_SetDefenses(playerLevel)
     parryFrame.tooltipRow1 = "Parry Chance " .. parryChanceText;
     parryFrame.tooltipRow2 =
         "Increases your chance to parry by " .. parryChanceText .. " against level " .. playerLevel .. " targets" ..
-            "\nParry rating: " .. parryRating .. " +(" .. parryPercentFromRating .. "% to parry)";
+            "\nParry rating: " .. parryRating .. " (+" .. parryPercentFromRating .. "% to parry)";
 
     -- Avoidance and Mitigation
     local avoidanceFrame = AS_DefensesLabelFrame6;

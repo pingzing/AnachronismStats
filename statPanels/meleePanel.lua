@@ -240,6 +240,11 @@ function AS.Frame_SetMelee(playerLevel)
     expertiseFrame.ValueFrame.Value:SetText(expertiseText);
     expertiseFrame.tooltipRow1 = expertiseTooltipRow1;
     expertiseFrame.tooltipRow2 = expertiseTooltipRow2;
+
+    -- Arrmor Penetration
+    local armorPenFrame = AS_MeleeLabelFrame7;
+    local arPen = GetArmorPenetration();
+    armorPenFrame.ValueFrame.Value:SetText(arPen);
 end
 
 function AS.GetMeleePanel()

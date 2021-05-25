@@ -4,7 +4,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
 
   <!-- Melee container frame-->
   <Frame name="AS_MeleeContainerFrame">
-    <Size x="130" y="93" />
+    <Size x="130" y="106" />
     <Anchors>
       <Anchor point="TOPLEFT" relativeTo="AnachronismStatsContent" relativePoint="TOPLEFT">
         <Offset x="5" y="-80" />
@@ -121,6 +121,19 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
           <OnLoad>
             self.Label:SetText("Expertise:");
             self.name = "Expertise";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <Frame name="AS_MeleeLabelFrame7" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame6">
+            <Offset x="0" y="-12"/>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Penetration");
+            self.name = "Armor Penetration"
           </OnLoad>
         </Scripts>
       </Frame>
