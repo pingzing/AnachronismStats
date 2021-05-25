@@ -150,9 +150,20 @@ local function GetAttributeTooltipDetailText(stat, base, current, posBuff, negBu
     end
 end
 
+local function OnUpArrow_Click()
+    AS.StatPanel_UpArrow_OnClick(AS_AttributesContainerFrame);
+end
+
+local function OnDownArrow_Click()
+    AS.StatPanel_DownArrow_OnClick(AS_AttributesContainerFrame);
+end
+
 function AnachronismStats_AttributesPanel_OnLoad(self)
     local containerFrame = AS.ContainerFrame;
     self:SetParent(containerFrame);
+
+    AS_StatsHeaderFrame.UpArrow:SetScript("OnClick", OnUpArrow_Click);
+    AS_StatsHeaderFrame.DownArrow:SetScript("OnClick", OnDownArrow_Click);
 end
 
 function AS.GetAttributeTooltipText(tooltipText, stat, base, current, posBuff, negBuff, playerLevel)
