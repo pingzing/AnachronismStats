@@ -87,25 +87,6 @@ local function ShowRangedDamageTooltip(self)
     GameTooltip:Show();
 end
 
-local function GetRangedWeaponSkillDetails(skillBase, skillMod, playerLevel)
-    local wepSkillText;
-    local wepSkillTooltipRow1;
-    local wepSkillTooltipRow2;
-
-    wepSkillText = AS.GetStatValue(skillBase, skillMod, 0)
-    wepSkillTooltipRow1 = AS.GetStatTooltipText("Ranged Weapon Skill", skillBase, skillMod, 0);
-
-    local maxSkillForLevel = playerLevel * 5;
-    -- These might be negative.
-    local bonusSkill = skillBase - maxSkillForLevel;
-    local percentBonus = format("%.2F", bonusSkill * .04) .. "%";
-    wepSkillTooltipRow2 =
-        "Increases the chanec for your ranged attacks chance to hit and crit, and reduces their chance to be blocked by " ..
-            percentBonus .. " by a level " .. playerLevel .. " enemy";
-
-    return wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2;
-end
-
 local function OnUpArrow_Click()
     AS.StatPanel_UpArrow_OnClick(AS_RangedContainerFrame);
 end
@@ -129,7 +110,7 @@ function AS.Frame_SetRanged(playerLevel)
     local rangedPowerFrame = AS_RangedLabelFrame3;
     local rangedHitFrame = AS_RangedLabelFrame4;
     local rangedCritFrame = AS_RangedLabelFrame5;
-    local rangedWepSkillFrame = AS_RangedLabelFrame6;
+    local armorPenFrame = AS_RangedLabelFrame6;
 
     if (not (HasRanged())) then
         -- Fill out everything with N/A. Druids, Paladins and Shamans off the table immediately.
@@ -138,7 +119,7 @@ function AS.Frame_SetRanged(playerLevel)
         rangedPowerFrame.ValueFrame.Value:SetText("N/A");
         rangedHitFrame.ValueFrame.Value:SetText("N/A");
         rangedCritFrame.ValueFrame.Value:SetText("N/A");
-        rangedWepSkillFrame.ValueFrame.Value:SetText("N/A");
+        armorPenFrame.ValueFrame.Value:SetText("N/A");
         return;
     end
 
@@ -148,7 +129,8 @@ function AS.Frame_SetRanged(playerLevel)
 
     -- Speed    
     local rangedAttackSpeed, _, _, _, _, _ = UnitRangedDamage("player");
-    local hastePercent = GetRangedHaste();
+    local hasteRating = GetCombatRating(AS.RatingIds.RangedHaste);
+    local hastePercent = GetCombatRatingBonus(AS.RatingIds.RangedHaste); -- TODO: Is this ALL haste, or just haste from rating?
     local speedText = format("%.2F", rangedAttackSpeed);
     if (hastePercent == 0) then
         rangedSpeedFrame.ValueFrame.Value:SetText(speedText);
@@ -159,7 +141,7 @@ function AS.Frame_SetRanged(playerLevel)
     end
     rangedSpeedFrame.ValueFrame.Value:SetText(speedText);
     rangedSpeedFrame.tooltipRow1 = "Ranged Attack Speed " .. speedText;
-    rangedSpeedFrame.tooltipRow2 = "Haste: " .. format("%.2F", hastePercent) .. "%";
+    rangedSpeedFrame.tooltipRow2 = "Haste: " .. format("%.2F", hastePercent) .. "%" .. "\nHaste rating: " .. hasteRating;
 
     -- Ranged Attack Power    
     -- Mages, Priests and Warlocks use wands, which don't benefit from RAP
@@ -174,29 +156,32 @@ function AS.Frame_SetRanged(playerLevel)
     end
 
     -- Ranged Hit Chance       
-    local hitFromGear = GetHitModifier(); -- Seems to be the same API for ranged and melee?
-    -- TODO: Get hit from talents and Weapon skill too
-    rangedHitFrame.ValueFrame.Value:SetText(hitFromGear .. "%");
-    rangedHitFrame.tooltipRow1 = "Ranged Hit Chance " .. hitFromGear .. "%";
+    local hitChance = GetHitModifier(); -- Seems to be the same API for ranged and melee?
+    local hitRating = GetCombatRating(AS.RatingIds.RangedHit);
+    local hitFromRating = GetCombatRatingBonus(AS.RatingIds.RangedHit);
+    rangedHitFrame.ValueFrame.Value:SetText(hitChance .. "%");
+    rangedHitFrame.tooltipRow1 = "Ranged Hit Chance " .. hitChance .. "%";
     rangedHitFrame.tooltipRow2 = "Increases your ranged chance to hit a target of level " .. playerLevel .. " by " ..
-                                     hitFromGear .. "%";
+                                     hitChance .. "%" .. "\nHit rating: " .. hitRating .. " (+" ..
+                                     format("%.2F", hitFromRating) .. "% to hit)";
 
     -- Ranged Crit    
     local rangedCrit = GetRangedCritChance();
-    -- TODO: Get crit from weapon skill (and talents? Are there any?)
+    local rangedCritRating = GetCombatRating(AS.RatingIds.RangedCrit);
+    local rangedCritFromRating = GetCombatRatingBonus(AS.RatingIds.RangedCrit);
     local critText = format("%.2F", rangedCrit) .. "%";
     rangedCritFrame.ValueFrame.Value:SetText(critText);
     rangedCritFrame.tooltipRow1 = "Ranged Critical Hit Chance " .. critText;
     rangedCritFrame.tooltipRow2 = "Increases your ranged chance to crit a target of level " .. playerLevel .. " by " ..
-                                      critText;
-
-    -- Ranged weapon skill    
-    local rangedAttackBase, rangedAttackMod = UnitRangedAttack("player");
-    local wepSkillText, wepSkillTooltipRow1, wepSkillTooltipRow2 =
-        GetRangedWeaponSkillDetails(rangedAttackBase, rangedAttackMod, playerLevel);
-    rangedWepSkillFrame.ValueFrame.Value:SetText(wepSkillText);
-    rangedWepSkillFrame.tooltipRow1 = wepSkillTooltipRow1;
-    rangedWepSkillFrame.tooltipRow2 = wepSkillTooltipRow2;
+                                      critText .. "\nCrit rating: " .. critRating .. " (+" ..
+                                      format("%.2F", rangedCritFromRating) .. "% to crit)";
+    
+    -- Arrmor Penetration        
+    local arPen = GetArmorPenetration();
+    armorPenFrame.ValueFrame.Value:SetText(arPen);
+    armorPenFrame.ValueFrame.Value:SetText(arPen);
+    armorPenFrame.tooltipRow = "Armor Penetration " .. arPen;
+    armorPenFrame.tooltipRow2 = "Makes your attacks ignore " .. arPen .. " of an enemy's armor";
 end
 
 function AS.GetRangedPanel()

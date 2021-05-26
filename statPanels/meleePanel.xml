@@ -132,7 +132,7 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
         </Anchors>
         <Scripts>
           <OnLoad>
-            self.Label:SetText("Penetration");
+            self.Label:SetText("Penetration:");
             self.name = "Armor Penetration"
           </OnLoad>
         </Scripts>

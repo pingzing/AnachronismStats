@@ -105,9 +105,8 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
             self.name = "Crit Chance";
           </OnLoad>
         </Scripts>
-      </Frame>
-      <!-- Todo: Replace with Expertise -->
-      <!-- Wep Skill -->
+      </Frame>      
+      <!-- Armor Pen -->
       <Frame name="AS_RangedLabelFrame6" inherits="AS_StatFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="AS_RangedLabelFrame5">
@@ -118,8 +117,8 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
         </Anchors>
         <Scripts>
           <OnLoad>
-            self.Label:SetText("Weapon Skill:");
-            self.name = "Weapon Skill";
+            self.Label:SetText("Penetration:");
+            self.name = "Armor Penetration";
           </OnLoad>
         </Scripts>
       </Frame>

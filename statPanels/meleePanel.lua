@@ -182,6 +182,7 @@ function AS.Frame_SetMelee(playerLevel)
     local speedFrame = AS_MeleeLabelFrame2;
     local mainSpeed, offSpeed = UnitAttackSpeed("player");
     local hastePercent = GetMeleeHaste();
+    -- TODO: Add rating, figure out if GetMeleeHaste and GetCombatRatingBonus(Haste) differ from each other
     local speedText = format("%.2F", mainSpeed);
     if (offSpeed) then
         local offspeedText = format("%.2F", offSpeed);
@@ -245,6 +246,8 @@ function AS.Frame_SetMelee(playerLevel)
     local armorPenFrame = AS_MeleeLabelFrame7;
     local arPen = GetArmorPenetration();
     armorPenFrame.ValueFrame.Value:SetText(arPen);
+    armorPenFrame.tooltipRow1 = "Armor Penetration " .. arPen;
+    armorPenFrame.tooltipRow2 = "Makes your attacks ignore " .. arPen .. " of an enemy's armor";
 end
 
 function AS.GetMeleePanel()
