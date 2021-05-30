@@ -1,15 +1,7 @@
 local addonName, AS = ... -- Get addon name and shared table.
 AnachronismStats = AS -- Globalized, so XML can see it
 
--- All these tables assume level 60.
-local INT_PER_SPELLCRIT = {
-    PALADIN = 79.4,
-    WARLOCK = 81.9,
-    DRUID = 79.4,
-    SHAMAN = 78.1,
-    MAGE = 81,
-    PRIEST = 80,
-};
+-- All these tables assume level 70.
 
 local AGI_PER_CRIT = {
     WARRIOR = 33,
@@ -35,7 +27,7 @@ local AGI_PER_DODGE = {
     HUNTER = 25,
 }
 
-local function GetStrengthDetailText(base, current, posBuff, negBuff, playerLevel)
+local function GetStrengthDetailText(current)
     local _, classFileName = UnitClass("player");
     local stanceNum = GetShapeshiftForm();
     local strengthDetailText = "";
@@ -55,7 +47,7 @@ local function GetStrengthDetailText(base, current, posBuff, negBuff, playerLeve
     return strtrim(strengthDetailText);
 end
 
-local function GetAgilityDetailText(base, current, posBuff, negBuff, playerLevel)
+local function GetAgilityDetailText(current, playerLevel)
     local _, classFileName = UnitClass("player");
     local stanceNum = GetShapeshiftForm();
     local agiDetailText = "";
@@ -71,15 +63,12 @@ local function GetAgilityDetailText(base, current, posBuff, negBuff, playerLevel
         agiDetailText = agiDetailText .. "Increases ranged attack power by " .. current .. "\n";
     end
 
-    -- Crit chance
-    -- The operative guess here is that the level coefficient is just (currLevel / maxLevel) * AGI_PER_CRIT (which is the level 60 value)
-    -- That's almost certainly wrong, but it seems to be Good Enough(tm).
-    -- TODO: Bet I could dig out an old copy of RatingBuster and see what it did (provided formulas didn't change between 1.12 and 2.4.3)
-    local agiPerCrit = (playerLevel / AS.MAX_LEVEL) * AGI_PER_CRIT[classFileName];
-    agiDetailText = agiDetailText .. "Increases melee and ranged crit chance by ~" ..
-                        format("%.2F", (current / agiPerCrit)) .. "%\n";
+    local critChance = GetCritChanceFromAgility("player");
+    agiDetailText = agiDetailText .. "Increases melee and ranged crit chance by " .. format("%.2F", critChance) ..
+                        "%\n";
 
-    -- Ditto dodge chance.
+    -- Currently assumes that dodge chance decreases linearly from max level. Probably not accurate
+    -- TODO: Should have a table for each point we know about and interpolate between them.
     local agiPerDodge = (playerLevel / AS.MAX_LEVEL) * AGI_PER_DODGE[classFileName];
     agiDetailText = agiDetailText .. "Increases dodge chance by ~" .. format("%.2F", (current / agiPerDodge)) .. "%\n";
 
@@ -89,7 +78,7 @@ local function GetAgilityDetailText(base, current, posBuff, negBuff, playerLevel
     return strtrim(agiDetailText);
 end
 
-local function GetStaminaDetailText(base, current, posBuff, negBuff, playerLevel)
+local function GetStaminaDetailText(current)
     local _, race = UnitRace("player");
 
     -- Value * 10. (Unless Tauren, then value * 10.5)            
@@ -104,49 +93,47 @@ local function GetStaminaDetailText(base, current, posBuff, negBuff, playerLevel
     return "Increases health by " .. healthFromStam;
 end
 
-local function GetIntellectDetailText(base, current, posBuff, negBuff, playerLevel)
+local function GetIntellectDetailText(current)
     local _, classFileName = UnitClass("player");
     -- We could be smart and check to see if the unit has mana, but... Druids. Just do the easy thing.
     if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
         return "";
     end
 
-    local intPerCrit = (playerLevel / AS.MAX_LEVEL) * INT_PER_SPELLCRIT[classFileName];
+    local critChance = GetSpellCritChanceFromIntellect("player");
     local intelDetailText = "Increases your maximum mana by " .. floor(current * 15) .. "\n";
-    intelDetailText = intelDetailText .. "Increases your spell crit chance by ~" ..
-                          format("%.2F", (current / intPerCrit)) .. "%";
+    intelDetailText = intelDetailText .. "Increases your spell crit chance by " .. format("%.2F", critChance) .. "%";
     return strtrim(intelDetailText);
 end
 
--- TODO: This seems to return all zeroes ATM
-local function GetSpiritDetailText(base, current, posBuff, negBuff, playerLevel)
+local function GetSpiritDetailText()
     local _, classFileName = UnitClass("player");
     if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
         return "";
     end
 
-    -- GetManaRegen("player") just returns regen at-the-moment, so we 
-    -- have to calculate all this ourselves.
-    local mp5FromSpirit = AS.GetMp5FromSpirit(current, classFileName);
+    local hp5FromSpirit = GetUnitHealthRegenRateFromSpirit("player"); -- already HP/5
+    local mp5FromSpirit = GetUnitManaRegenRateFromSpirit("player") * 5.0;
     local percentWhileCasting = AS.GetPercentRegenWhileCasting(classFileName);
     local spiritDetailText = "Increases your mana regeneration by " .. floor(mp5FromSpirit) ..
-                                 " per 5 seconds while not casting\n";
-    spiritDetailText = spiritDetailText .. "Increases your mana regeneration by " ..
-                           (floor(mp5FromSpirit * (percentWhileCasting / 100))) .. " per 5 seconds while casting";
+                                 " per 5 seconds while not casting" .. "\nIncreases your mana regeneration by " ..
+                                 (floor(mp5FromSpirit * (percentWhileCasting / 100))) .. " per 5 seconds while casting" ..
+                                 "\nIncreases your health regeneration by " .. floor(hp5FromSpirit) ..
+                                 " per 5 seconds while not in combat";
     return spiritDetailText;
 end
 
-local function GetAttributeTooltipDetailText(stat, base, current, posBuff, negBuff, playerLevel)
+local function GetAttributeTooltipDetailText(stat, current, playerLevel)
     if (stat == "STRENGTH") then
-        return GetStrengthDetailText(base, current, posBuff, negBuff, playerLevel);
+        return GetStrengthDetailText(current);
     elseif (stat == "AGILITY") then
-        return GetAgilityDetailText(base, current, posBuff, negBuff, playerLevel);
+        return GetAgilityDetailText(current, playerLevel);
     elseif (stat == "STAMINA") then
-        return GetStaminaDetailText(base, current, posBuff, negBuff, playerLevel);
+        return GetStaminaDetailText(current);
     elseif (stat == "INTELLECT") then
-        return GetIntellectDetailText(base, current, posBuff, negBuff, playerLevel);
+        return GetIntellectDetailText(current);
     elseif (stat == "SPIRIT") then
-        return GetSpiritDetailText(base, current, posBuff, negBuff, playerLevel);
+        return GetSpiritDetailText();
     end
 end
 
@@ -166,7 +153,7 @@ function AnachronismStats_AttributesPanel_OnLoad(self)
     AS_StatsHeaderFrame.DownArrow:SetScript("OnClick", OnDownArrow_Click);
 end
 
-function AS.GetAttributeTooltipText(tooltipText, stat, base, current, posBuff, negBuff, playerLevel)
+local function GetAttributeTooltipText(tooltipText, stat, current, posBuff, negBuff, playerLevel)
     local tooltipRow1 = tooltipText;
     if ((posBuff == 0) and (negBuff == 0)) then
         tooltipRow1 = tooltipRow1 .. current .. FONT_COLOR_CODE_CLOSE;
@@ -187,7 +174,7 @@ function AS.GetAttributeTooltipText(tooltipText, stat, base, current, posBuff, n
         end
     end
 
-    local tooltipRow2 = GetAttributeTooltipDetailText(stat, base, current, posBuff, negBuff, playerLevel);
+    local tooltipRow2 = GetAttributeTooltipDetailText(stat, current, playerLevel);
 
     return tooltipRow1, tooltipRow2;
 end
@@ -206,10 +193,10 @@ function AS.Frame_SetAttributes(playerLevel)
             frame.ValueFrame.Value:SetText(GREEN_FONT_COLOR_CODE .. current .. FONT_COLOR_CODE_CLOSE);
         end
 
-        frame.tooltipRow1, frame.tooltipRow2 = AS.GetAttributeTooltipText(HIGHLIGHT_FONT_COLOR_CODE ..
-                                                                              _G["SPELL_STAT" .. i .. "_NAME"] .. " ",
-                                                                          frame.stat, base, current, posBuff, negBuff,
-                                                                          playerLevel);
+        frame.tooltipRow1, frame.tooltipRow2 = GetAttributeTooltipText(HIGHLIGHT_FONT_COLOR_CODE ..
+                                                                           _G["SPELL_STAT" .. i .. "_NAME"] .. " ",
+                                                                       frame.stat, current, posBuff, negBuff,
+                                                                       playerLevel);
     end
 end
 

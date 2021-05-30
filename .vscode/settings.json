@@ -72,6 +72,10 @@
         "UnitArmor",
         "UnitDefense",
         "min",
-        "GetArmorPenetration"
+        "GetArmorPenetration",
+        "GetSpellCritChanceFromIntellect",
+        "GetUnitManaRegenRateFromSpirit",
+        "GetUnitHealthRegenRateFromSpirit",
+        "GetCritChanceFromAgility"
     ]
 }

@@ -119,7 +119,7 @@ function AS.Frame_SetDefenses(playerLevel)
 
     avoidanceFrame.ValueFrame.Value:SetText(avoidanceChanceText);
     avoidanceFrame.tooltipRow1 = "Avoidance " .. avoidanceChanceText;
-    avoidanceFrame.tooltipRow2 = "Total chance to completely avoid damage from an enemy's melee attack" ..
+    avoidanceFrame.tooltipRow2 = "Combined chance to dodge, parry, or be missed by an enemy's attack" ..
                                      "\n\nMitigation (includes Block): " .. mitigationChanceText ..
                                      "\n\nChance to be crushed against a level " .. playerLevel + 3 .. " enemy: " ..
                                      format("%.2F", max(0, crushChance)) .. "%";

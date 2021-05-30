@@ -247,9 +247,9 @@ function AnachronismStats_Frame_OnLoad(self)
     self:RegisterEvent("UNIT_RANGED_ATTACK_POWER");
     self:RegisterEvent("UNIT_ATTACK");
     self:RegisterEvent("SKILL_LINES_CHANGED");
-    self:RegisterEvent("UPDATE_SHAPESHIFT_FORMS");
     self:RegisterEvent("UNIT_AURA");
-    self:RegisterEvent("UNIT_POWER_UPDATE");
+    self:RegisterEvent("UNIT_MAXHEALTH");
+    self:RegisterEvent("COMBAT_RATING_UPDATE");
 
     -- Queue one initial update
     self:SetScript("OnUpdate", AnachronismStats_Frame_QueuedUpdate);
@@ -280,6 +280,7 @@ function AnachronismStats_Frame_OnEvent(self, event, ...)
     if (event == "ADDON_LOADED" and ... == "AnachronismStats") then
         LoadCompleted();
     else
+        -- Make sure we batch event updates to only happen once-per-frame.
         self:SetScript("OnUpdate", AnachronismStats_Frame_QueuedUpdate);
     end
 end
@@ -293,7 +294,6 @@ local function UpdateStatFrames()
     AS.Frame_SetDefenses(playerLevel);
 end
 
--- Make sure we batch event updates to only happen once-per-frame.
 function AnachronismStats_Frame_QueuedUpdate(self)
     -- Clear the queued update.
     self:SetScript("OnUpdate", nil);
@@ -301,31 +301,3 @@ function AnachronismStats_Frame_QueuedUpdate(self)
 end
 
 -- //// END EVENT HANDLERS ////
-
--- //// DEBUG HELPERS ////
---[[ rPrint(struct, [limit], [indent])   Recursively print arbitrary data. 
-	Set limit (default 100) to stanch infinite loops.
-	Indents tables as [KEY] VALUE, nested tables as [KEY] [KEY]...[KEY] VALUE
-	Set indent ("") to prefix each line:    Mytable [KEY] [KEY]...[KEY] VALUE
---]]
-function AS.DebugPrintTable(s, l, i) -- recursive Print (structure, limit, indent)
-    l = (l) or 100;
-    i = i or ""; -- default item limit, indent string
-    if (l < 1) then
-        print "ERROR: Item limit reached.";
-        return l - 1
-    end
-    local ts = type(s);
-    if (ts ~= "table") then
-        print(i, ts, s);
-        return l - 1
-    end
-    print(i, ts); -- print "table"
-    for k, v in pairs(s) do -- print "[KEY] VALUE"
-        l = AS.DebugPrintTable(v, l, i .. "  [" .. tostring(k) .. "]");
-        if (l < 0) then
-            break
-        end
-    end
-    return l
-end
