@@ -173,14 +173,13 @@ function AS.Frame_SetRanged(playerLevel)
     rangedCritFrame.ValueFrame.Value:SetText(critText);
     rangedCritFrame.tooltipRow1 = "Ranged Critical Hit Chance " .. critText;
     rangedCritFrame.tooltipRow2 = "Increases your ranged chance to crit a target of level " .. playerLevel .. " by " ..
-                                      critText .. "\nCrit rating: " .. critRating .. " (+" ..
+                                      critText .. "\nCrit rating: " .. rangedCritRating .. " (+" ..
                                       format("%.2F", rangedCritFromRating) .. "% to crit)";
     
     -- Arrmor Penetration        
     local arPen = GetArmorPenetration();
-    armorPenFrame.ValueFrame.Value:SetText(arPen);
-    armorPenFrame.ValueFrame.Value:SetText(arPen);
-    armorPenFrame.tooltipRow = "Armor Penetration " .. arPen;
+    armorPenFrame.ValueFrame.Value:SetText(arPen);    
+    armorPenFrame.tooltipRow1 = "Armor Penetration " .. arPen;
     armorPenFrame.tooltipRow2 = "Makes your attacks ignore " .. arPen .. " of an enemy's armor";
 end
 
