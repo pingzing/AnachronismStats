@@ -17,8 +17,8 @@ function GetDefenseDetailText(base, posBuff, negBuff)
 
     local maxSkillForLevel = playerLevel * 5;
     local bonusSkill = effectiveDefense - maxSkillForLevel;
-    local defenseRating = GetCombatRating(AS.RatingIds.Defense);
-    local defenseFromRating = GetCombatRatingBonus(AS.RatingIds.Defense);
+    local defenseRating = GetCombatRating(AS.Ratings.IDs.Defense);
+    local defenseFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Defense);
     local percentBonusText = format("%.2F", max(0, bonusSkill * .04)) .. "%";
     -- Not certain about the daze .16 value.
     local detailText = "Against a level " .. playerLevel .. " enemy:\n" .. "  -" .. percentBonusText ..
@@ -74,8 +74,8 @@ function AS.Frame_SetDefenses(playerLevel)
     local blockChance = GetBlockChance();
     local blockChanceText = format("%.2F", blockChance) .. "%";
     local blockValue = GetShieldBlock();
-    local blockRating = GetCombatRating(AS.RatingIds.Block);
-    local blockPercentFromRating = GetCombatRatingBonus(AS.RatingIds.Block);
+    local blockRating = GetCombatRating(AS.Ratings.IDs.Block);
+    local blockPercentFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Block);
     blockFrame.ValueFrame.Value:SetText(blockChanceText);
     blockFrame.tooltipRow1 = "Block Chance " .. blockChanceText;
     blockFrame.tooltipRow2 =
@@ -87,8 +87,8 @@ function AS.Frame_SetDefenses(playerLevel)
     local dodgeFrame = AS_DefensesLabelFrame4;
     local dodgeChance = GetDodgeChance();
     local dodgeChanceText = format("%.2F", dodgeChance) .. "%";
-    local dodgeRating = GetCombatRating(AS.RatingIds.Dodge);
-    local dodgePercentFromRating = GetCombatRatingBonus(AS.RatingIds.Dodge);
+    local dodgeRating = GetCombatRating(AS.Ratings.IDs.Dodge);
+    local dodgePercentFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Dodge);
     dodgeFrame.ValueFrame.Value:SetText(dodgeChanceText);
     dodgeFrame.tooltipRow1 = "Dodge Chance " .. dodgeChanceText;
     dodgeFrame.tooltipRow2 =
@@ -99,8 +99,8 @@ function AS.Frame_SetDefenses(playerLevel)
     local parryFrame = AS_DefensesLabelFrame5;
     local parryChance = GetParryChance();
     local parryChanceText = format("%.2F", parryChance) .. "%";
-    local parryRating = GetCombatRating(AS.RatingIds.Parry);
-    local parryPercentFromRating = GetCombatRatingBonus(AS.RatingIds.Parry);
+    local parryRating = GetCombatRating(AS.Ratings.IDs.Parry);
+    local parryPercentFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Parry);
     parryFrame.ValueFrame.Value:SetText(parryChanceText);
     parryFrame.tooltipRow1 = "Parry Chance " .. parryChanceText;
     parryFrame.tooltipRow2 =

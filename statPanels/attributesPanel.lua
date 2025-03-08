@@ -3,30 +3,6 @@ AnachronismStats = AS -- Globalized, so XML can see it
 
 -- All these tables assume level 70.
 
-local AGI_PER_CRIT = {
-    WARRIOR = 33,
-    ROGUE = 40,
-    PALADIN = 25,
-    WARLOCK = 25,
-    MAGE = 25,
-    SHAMAN = 25,
-    DRUID = 25,
-    PRIEST = 25,
-    HUNTER = 40,
-};
-
-local AGI_PER_DODGE = {
-    WARRIOR = 30,
-    ROGUE = 20,
-    PALADIN = 25,
-    WARLOCK = 25,
-    MAGE = 25,
-    SHAMAN = 25,
-    DRUID = 25,
-    PRIEST = 25,
-    HUNTER = 25,
-}
-
 local function GetStrengthDetailText(current)
     local _, classFileName = UnitClass("player");
     local stanceNum = GetShapeshiftForm();
@@ -69,7 +45,7 @@ local function GetAgilityDetailText(current, playerLevel)
 
     -- Currently assumes that dodge chance decreases linearly from max level. Probably not accurate
     -- TODO: Should have a table for each point we know about and interpolate between them.
-    local agiPerDodge = (playerLevel / AS.MAX_LEVEL) * AGI_PER_DODGE[classFileName];
+    local agiPerDodge = (playerLevel / AS.MAX_LEVEL) * AS.Ratings.AgiPerDodge[classFileName];
     agiDetailText = agiDetailText .. "Increases dodge chance by ~" .. format("%.2F", (current / agiPerDodge)) .. "%\n";
 
     -- 2 Armor per Agi
@@ -114,7 +90,7 @@ local function GetSpiritDetailText()
 
     local hp5FromSpirit = GetUnitHealthRegenRateFromSpirit("player"); -- already HP/5
     local mp5FromSpirit = GetUnitManaRegenRateFromSpirit("player") * 5.0;
-    local percentWhileCasting = AS.GetPercentRegenWhileCasting(classFileName);
+    local percentWhileCasting = AS.Ratings.GetPercentRegenWhileCasting(classFileName);
     local spiritDetailText = "Increases your mana regeneration by " .. floor(mp5FromSpirit) ..
                                  " per 5 seconds while not casting" .. "\nIncreases your mana regeneration by " ..
                                  (floor(mp5FromSpirit * (percentWhileCasting / 100))) .. " per 5 seconds while casting" ..

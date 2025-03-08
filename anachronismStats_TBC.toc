@@ -9,6 +9,7 @@
 
 # Functions and utilities
 ratings.lua
+ratings.tbc.lua
 
 # Entry point
 anachronismStats.xml

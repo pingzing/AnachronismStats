@@ -149,7 +149,7 @@ local function GetExpertiseDetails(main, hasOffhand, off, expertiseRating, playe
         expertiseTooltipRow2 = expertiseTooltipRow2 .. " / " .. offPercent;
     end
 
-    local expertiseFromRating = GetCombatRatingBonus(AS.RatingIds.Expertise);
+    local expertiseFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Expertise);
     expertiseTooltipRow2 = expertiseTooltipRow2 .. "\nExpertise rating: " .. expertiseRating .. " (+" ..
                                expertiseFromRating .. " expertise)";
 
@@ -210,19 +210,15 @@ function AS.Frame_SetMelee(playerLevel)
     -- Hit Chance
     local hitFrame = AS_MeleeLabelFrame4;
     local hitChance = GetHitModifier();
-    local hitRating = GetCombatRating(AS.RatingIds.MeleeHit);
-    local hitFromRating = GetCombatRatingBonus(AS.RatingIds.MeleeHit);
     hitFrame.ValueFrame.Value:SetText(hitChance .. "%");
     hitFrame.tooltipRow1 = "Hit Chance " .. hitChance .. "%";
-    hitFrame.tooltipRow2 =
-        "Increases your melee chance to hit a target of level " .. playerLevel .. " by " .. hitChance .. "%" ..
-            "\nHit rating: " .. hitRating .. " (+" .. format("%.2F", hitFromRating) .. "% to hit)";
+    hitFrame.tooltipRow2 = AS.Ratings.GetMeleeHitTooltipLine2(playerLevel, hitChance);
 
     -- Crit chance
     local critFrame = AS_MeleeLabelFrame5;
     local critChance = GetCritChance();
-    local critRating = GetCombatRating(AS.RatingIds.MeleeCrit);
-    local critFromRating = GetCombatRatingBonus(AS.RatingIds.MeleeCrit);
+    local critRating = GetCombatRating(AS.Ratings.IDs.MeleeCrit);
+    local critFromRating = GetCombatRatingBonus(AS.Ratings.IDs.MeleeCrit);
     -- TODO: Get crit for per-weapon talents. Lotta AS.CLASSES have those.
     local critText = format("%.2F", critChance) .. "%";
     critFrame.ValueFrame.Value:SetText(critText);
@@ -234,7 +230,7 @@ function AS.Frame_SetMelee(playerLevel)
     -- Expertise
     local expertiseFrame = AS_MeleeLabelFrame6;
     local main, off, _ = GetExpertise();
-    local expertiseRating = GetCombatRating(AS.RatingIds.Expertise);
+    local expertiseRating = GetCombatRating(AS.Ratings.IDs.Expertise);
     local hasOffhand = OffhandHasWeapon();
     local expertiseText, expertiseTooltipRow1, expertiseTooltipRow2 =
         GetExpertiseDetails(main, hasOffhand, off, expertiseRating, playerLevel);

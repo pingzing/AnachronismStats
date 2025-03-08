@@ -129,8 +129,8 @@ function AS.Frame_SetRanged(playerLevel)
 
     -- Speed    
     local rangedAttackSpeed, _, _, _, _, _ = UnitRangedDamage("player");
-    local hasteRating = GetCombatRating(AS.RatingIds.RangedHaste);
-    local hastePercent = GetCombatRatingBonus(AS.RatingIds.RangedHaste); -- TODO: Is this ALL haste, or just haste from rating?
+    local hasteRating = GetCombatRating(AS.Ratings.IDs.RangedHaste);
+    local hastePercent = GetCombatRatingBonus(AS.Ratings.IDs.RangedHaste); -- TODO: Is this ALL haste, or just haste from rating?
     local speedText = format("%.2F", rangedAttackSpeed);
     if (hastePercent == 0) then
         rangedSpeedFrame.ValueFrame.Value:SetText(speedText);
@@ -157,8 +157,8 @@ function AS.Frame_SetRanged(playerLevel)
 
     -- Ranged Hit Chance       
     local hitChance = GetHitModifier(); -- Seems to be the same API for ranged and melee?
-    local hitRating = GetCombatRating(AS.RatingIds.RangedHit);
-    local hitFromRating = GetCombatRatingBonus(AS.RatingIds.RangedHit);
+    local hitRating = GetCombatRating(AS.Ratings.IDs.RangedHit);
+    local hitFromRating = GetCombatRatingBonus(AS.Ratings.IDs.RangedHit);
     rangedHitFrame.ValueFrame.Value:SetText(hitChance .. "%");
     rangedHitFrame.tooltipRow1 = "Ranged Hit Chance " .. hitChance .. "%";
     rangedHitFrame.tooltipRow2 = "Increases your ranged chance to hit a target of level " .. playerLevel .. " by " ..
@@ -167,8 +167,8 @@ function AS.Frame_SetRanged(playerLevel)
 
     -- Ranged Crit    
     local rangedCrit = GetRangedCritChance();
-    local rangedCritRating = GetCombatRating(AS.RatingIds.RangedCrit);
-    local rangedCritFromRating = GetCombatRatingBonus(AS.RatingIds.RangedCrit);
+    local rangedCritRating = GetCombatRating(AS.Ratings.IDs.RangedCrit);
+    local rangedCritFromRating = GetCombatRatingBonus(AS.Ratings.IDs.RangedCrit);
     local critText = format("%.2F", rangedCrit) .. "%";
     rangedCritFrame.ValueFrame.Value:SetText(critText);
     rangedCritFrame.tooltipRow1 = "Ranged Critical Hit Chance " .. critText;

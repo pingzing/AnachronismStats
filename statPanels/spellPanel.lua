@@ -140,8 +140,8 @@ function AS.Frame_SetSpell(playerLevel)
 
     -- Spell Haste
     local spellHasteFrame = AS_SpellLabelFrame3;
-    local spellHastePercent = GetCombatRatingBonus(AS.RatingIds.SpellHaste);
-    local spellHasteRating = GetCombatRating(AS.RatingIds.SpellHaste);
+    local spellHastePercent = GetCombatRatingBonus(AS.Ratings.IDs.SpellHaste);
+    local spellHasteRating = GetCombatRating(AS.Ratings.IDs.SpellHaste);
     spellHasteFrame.ValueFrame.Value:SetText(spellHastePercent .. "%");
     spellHasteFrame.tooltipRow1 = "Spell Haste " .. format("%.2F", spellHastePercent) .. "%";
     spellHasteFrame.tooltipRow2 = "Increases the speed that you cast your spells by " ..
@@ -151,8 +151,8 @@ function AS.Frame_SetSpell(playerLevel)
     -- Spell Hit
     local spellHitFrame = AS_SpellLabelFrame4;
     local baseSpellHitPercent = GetSpellHitModifier();
-    local spellHitRating = GetCombatRating(AS.RatingIds.SpellHit);
-    local spellHitFromRating = GetCombatRatingBonus(AS.RatingIds.SpellHit);
+    local spellHitRating = GetCombatRating(AS.Ratings.IDs.SpellHit);
+    local spellHitFromRating = GetCombatRatingBonus(AS.Ratings.IDs.SpellHit);
     local totalSpellHit = baseSpellHitPercent + spellHitFromRating;
     spellHitFrame.ValueFrame.Value:SetText(totalSpellHit .. "%");
     spellHitFrame.tooltipRow1 = "Spell Hit Chance " .. totalSpellHit .. "%";
