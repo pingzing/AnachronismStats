@@ -1,0 +1,19 @@
+## Interface: 11506
+## Title: AnachronismStats
+## Notes: Bring the magic of BC stat info to Classic.
+## Author: PingZing
+## Version: 1.0
+## SavedVariablesPerCharacter: AnachronismStats_PanelPositions
+## X-Email: psychozagal@gmail.com
+## X-License: GPL v3
+
+# Functions and utilities
+ratings.lua
+
+# Entry point
+anachronismStats.xml
+statPanels\attributesPanel.xml
+statPanels\meleePanel.xml
+statPanels\rangedPanel.xml
+statPanels\spellPanel.xml
+statPanels\defensePanel.xml
