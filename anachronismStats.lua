@@ -39,7 +39,7 @@ local function ArrangePanels(panelPositions)
         local currPanel = _panelReferences[v];
         if i == 1 then
             -- Special case for the first panel, as it gets positioned relative to the root frame
-            currPanel:SetPoint("TOPLEFT", AnachronismStatsContent, "TOPLEFT", 5, 0);
+            currPanel:SetPoint("TOPLEFT", AnachronismStats_ContentAnchor, "TOPLEFT", 5, 0);
         else
             -- Everything else will be relative to the frame above itself
             local prevPanel = _panelReferences[panelPositions[i - 1]];
@@ -190,12 +190,12 @@ end
 
 local function SetMainFrameVisible(visible)
     if (visible) then
-        AnachronismStatsFrame:Show();
-        SquareButton_SetIcon(AS_OpenStats, "LEFT");
+        AnachronismStats_RootFrame:Show();
+        SquareButton_SetIcon(AnachronismStats_OpenStats, "LEFT");
         _isOpen = true;
     else
-        AnachronismStatsFrame:Hide();
-        SquareButton_SetIcon(AS_OpenStats, "RIGHT");
+        AnachronismStats_RootFrame:Hide();
+        SquareButton_SetIcon(AnachronismStats_OpenStats, "RIGHT");
         _isOpen = false;
     end
 end
@@ -222,18 +222,22 @@ function AnachronismStats_OpenStats_OnHide()
     SetMainFrameVisible(false);
 end
 
-function AnachronismStats_Frame_OnMouseWheel(self, delta)
-    local current = AnachronismStatsScrollFrame_VSlider:GetValue();
-    local _, maxValue = AnachronismStatsScrollFrame_VSlider:GetMinMaxValues();
-    if (delta < 0) and (current < maxValue) then
-        AnachronismStatsScrollFrame_VSlider:SetValue(current + 5);
-    elseif (delta > 0) and (current > 1) then
-        AnachronismStatsScrollFrame_VSlider:SetValue(current - 5);
+function AnachronismStats_Frame_OnMouseWheel(self, value, scrollBar)
+    local current = self:GetVerticalScroll();
+    local maxValue = self:GetVerticalScrollRange();
+    -- Going up
+    if  (value > 0) and (current > 1)  then
+        self:SetVerticalScroll(current - 5);
+    -- Going down
+    elseif (value < 0) and (current < maxValue) then
+        self:SetVerticalScroll(current + 5);
     end
 end
 
+
+
 function AnachronismStats_Frame_OnLoad(self)
-    AS.ContainerFrame = AnachronismStatsContent;
+    AS.ContainerFrame = AnachronismStats_ContentAnchor;
 
     self:RegisterEvent("ADDON_LOADED");
 

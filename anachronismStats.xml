@@ -1,13 +1,13 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
-C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Include file="templates.xml" />
   <Script file="anachronismStats.lua" />
 
   <!-- Button to show/hide AS Stats panel -->
-  <Button name="AS_OpenStats" inherits="UIPanelSquareButton" motionScriptsWhileDisabled="false" parent="PaperDollFrame">
+  <Button name="AnachronismStats_OpenStats" inherits="UIPanelSquareButton" motionScriptsWhileDisabled="false" parent="PaperDollItemsFrame">
     <Anchors>
-      <Anchor point="TOPLEFT" relativeTo="PaperDollFrame" relativePoint="TOPLEFT">
-        <Offset x="320" y="-42" />
+      <Anchor point="TOPLEFT" relativeTo="PaperDollItemsFrame" relativePoint="TOPLEFT">
+        <Offset x="317" y="-404" />
       </Anchor>
     </Anchors>
     <Scripts>
@@ -26,107 +26,50 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
   </Button>
 
   <!-- Root frame -->
-  <Frame name="AnachronismStatsFrame" setAllPoints="true" enableMouse="true" parent="PaperDollFrame" useParentLevel="true">
+  <Frame name="AnachronismStats_RootFrame" setAllPoints="true" enableMouse="true" parent="PaperDollFrame" useParentLevel="true">
     <Scripts>
       <OnLoad function="AnachronismStats_Frame_OnLoad" />
       <OnEvent function="AnachronismStats_Frame_OnEvent" />
     </Scripts>
-    <Size x="150" y="418" />
+    <Size x="165" y="435" />
     <Anchors>
       <Anchor point="TOPLEFT" relativeTo="PaperDollFrame" relativePoint="TOPLEFT">
-        <Offset x="352" y="-13" />
+        <Offset x="348" y="-8" />
       </Anchor>
     </Anchors>
     <Scripts>
-      <OnMouseWheel function="AnachronismStats_Frame_OnMouseWheel" />
     </Scripts>
-    <Layers>
-      <Layer level="BACKGROUND">
-        <!-- Top border and corners -->
-        <Texture name="AS_StatBackgroundTop" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
-          <Size>
-            <AbsDimension x="150" y="16" />
-          </Size>
-          <Anchors>
-            <Anchor point="TOPLEFT">
-              <Offset>
-                <AbsDimension x="0" y="0" />
-              </Offset>
-            </Anchor>
-          </Anchors>
-          <TexCoords left="0" right="0.8984375" top="0" bottom="0.125" />
-        </Texture>
-        <!-- Middle, with straight sides -->
-        <Texture name="AS_StatBackgoundMiddle" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
-          <Size>
-            <AbsDimension x="150" y="393" />
-          </Size>
-          <Anchors>
-            <Anchor point="TOPLEFT" relativeTo="AS_StatBackgroundTop" relativePoint="BOTTOMLEFT">
-              <Offset>
-                <AbsDimension x="0" y="0" />
-              </Offset>
-            </Anchor>
-          </Anchors>
-          <TexCoords left="0" right="0.8984375" top="0.125" bottom="0.1953125" />
-        </Texture>
-        <!-- Bottom border and corners -->
-        <Texture name="AD_StatBackgroundBottom" file="Interface\PaperDollInfoFrame\UI-Character-StatBackground">
-          <Size>
-            <AbsDimension x="150" y="16" />
-          </Size>
-          <Anchors>
-            <Anchor point="TOPLEFT" relativeTo="AS_StatBackgoundMiddle" relativePoint="BOTTOMLEFT">
-              <Offset>
-                <AbsDimension x="0" y="0" />
-              </Offset>
-            </Anchor>
-          </Anchors>
-          <TexCoords left="0" right="0.8984375" top="0.484375" bottom="0.609375" />
-        </Texture>
-      </Layer>
-    </Layers>
-    <Frames>
-      <!-- Scroll wrapper around the content -->
-      <ScrollFrame name="AnachronismStatsScrollFrame">
-        <Size x="155" y="415" />
-        <Anchors>
-          <Anchor point="TOPLEFT" relativeTo="AnachronismStatsFrame" relativePoint="TOPLEFT">
-            <Offset x="5" y="-5" />
-          </Anchor>
-        </Anchors>
-        <Frames>
-          <!-- Vertical scroll bar -->
-          <Slider name="AnachronismStatsScrollFrame_VSlider" orientation="VERTICAL" minValue="0" maxValue="115" defaultValue="0" valueStep="1">
-            <Size x="25" y="418" />
-            <Anchors>
-              <Anchor point="RIGHT" relativePoint="RIGHT" relativeTo="AnachronismStatsScrollFrame">
-                <Offset x="-8" y="0" />
-              </Anchor>
-            </Anchors>
-            <Scripts>
-              <OnValueChanged>
-                AnachronismStatsScrollFrame:SetVerticalScroll(self:GetValue())
-              </OnValueChanged>
-            </Scripts>
-            <ThumbTexture name="$parentThumbTexture" file="Interface\Buttons\UI-ScrollBar-Knob">
-              <Size x="25" y="25" />
-            </ThumbTexture>
-          </Slider>
-        </Frames>
 
+    <Frames>
+      <!-- Frame that draws borders and backgrounds, etc. -->
+      <Frame name="AnachronismStats_BackgroundFrame" inherits="DialogBorderTemplate"/>
+
+      <!-- Scroll wrapper around the content -->
+      <ScrollFrame name="AnachronismStats_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
+        <Size x="123" y="411"/>
+        <Anchors>
+          <Anchor point="TOPLEFT" x="8" y="-13"/>
+        </Anchors>
+        <Scripts>
+          <OnMouseWheel function="AnachronismStats_Frame_OnMouseWheel" />
+        </Scripts>
         <ScrollChild>
-          <!-- Frame that contains the actual stats. -->
-          <Frame name="AnachronismStatsContent">
-            <Size x="130" y="415" />
+          <!-- Frame that actual stat panels attach to. Does not actually wrap them, just
+          gives them a parent that lives inside the ScrollChild. -->
+          <Frame name="AnachronismStats_ContentAnchor">
+            <Size x="1" y="1" />
+            <Anchors>
+              <Anchor point="TOPLEFT" x="0" y="0" />
+            </Anchors>
 
             <!-- All child frames are parented to this frame in their own Lua OnLoad functions. -->
 
           </Frame>
-
         </ScrollChild>
 
       </ScrollFrame>
+
     </Frames>
+
   </Frame>
 </Ui>

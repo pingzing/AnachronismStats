@@ -1,5 +1,4 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
-C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.xsd">
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 
   <Font name="GameFontNormalSmallWhite" inherits="GameFontNormalSmall" virtual="true">
     <Color r="1.0" g="1.0" b="1.0" />
@@ -25,6 +24,16 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
             <Offset x="95" y="-2" />
           </Anchor>
         </Anchors>
+        <Scripts>
+          <OnEnter>
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+            GameTooltip:SetText("Move panel up");
+            GameTooltip:Show();
+          </OnEnter>
+          <OnLeave>
+            GameTooltip:Hide();
+          </OnLeave>
+        </Scripts>
       </Button>
       <Button name="$parentDownArrow" parentKey="DownArrow" inherits="UIPanelScrollDownButtonTemplate">
         <Size x="10" y="10"/>
@@ -33,6 +42,16 @@ C:\Users\mcali\Desktop\Repositories\BlizzardInterfaceCode\Interface\FrameXML\UI.
             <Offset x="105" y="-2" />
           </Anchor>
         </Anchors>
+        <Scripts>
+          <OnEnter>
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+            GameTooltip:SetText("Move panel down");
+            GameTooltip:Show();
+          </OnEnter>
+          <OnLeave>
+            GameTooltip:Hide();
+          </OnLeave>
+        </Scripts>
       </Button>
     </Frames>
   </Frame>
