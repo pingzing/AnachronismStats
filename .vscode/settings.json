@@ -89,7 +89,10 @@
     "C_Seasons",
     "Enum",
     "AS_AttributesContainerFrame",
-    "AS_StatsHeaderFrame"
+    "AS_StatsHeaderFrame",
+    "AS_SpellContainerFrame",
+    "AS_SpellHeaderFrame",
+    "UnitSpellHaste"
   ],
   "editor.formatOnSave": false
 }

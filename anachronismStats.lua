@@ -116,7 +116,7 @@ function AS.GetMp5FromEquippedItems()
     return summedMp5;
 end
 
-function AS.GetStatValue(base, posBuff, negBuff)
+function AS.GetFormattedStatValue(base, posBuff, negBuff)
     local effective = max(0, base + posBuff + negBuff);
     if ((posBuff == 0) and (negBuff == 0)) then
         return effective;

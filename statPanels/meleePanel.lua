@@ -171,7 +171,7 @@ function AS.Frame_SetMelee(playerLevel)
     -- Attack Power
     local apFrame = AS_MeleeLabelFrame3;
     local base, posBuff, negBuff = UnitAttackPower("player");
-    apFrame.ValueFrame.Value:SetText(AS.GetStatValue(base, posBuff, negBuff));
+    apFrame.ValueFrame.Value:SetText(AS.GetFormattedStatValue(base, posBuff, negBuff));
     apFrame.tooltipRow1 = AS.GetStatTooltipText(apFrame.name, base, posBuff, negBuff);
     apFrame.tooltipRow2 = "Increases your damage with melee weapons by " ..
                               format("%.1F", ((base + posBuff + negBuff) / 14)) .. " damage per second";

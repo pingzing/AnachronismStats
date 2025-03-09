@@ -14,3 +14,13 @@ AS.CLASSES = {
     Priest = "PRIEST",
     Hunter = "HUNTER",
 };
+
+AS.SPELL_SCHOOL_NAMES = {
+    [1] = "Physical",
+    [2] = "Holy",
+    [3] = "Fire",
+    [4] = "Nature",
+    [5] = "Frost",
+    [6] = "Shadow",
+    [7] = "Arcane",
+};

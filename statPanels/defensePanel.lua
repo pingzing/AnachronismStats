@@ -49,7 +49,7 @@ function AS.Frame_SetDefenses(playerLevel)
     -- Armor
     local armorFrame = AS_DefensesLabelFrame1;
     local base, _, _, armorPosBuff, armorNegBuff = UnitArmor("player");
-    local armorText = AS.GetStatValue(base, armorPosBuff, armorNegBuff);
+    local armorText = AS.GetFormattedStatValue(base, armorPosBuff, armorNegBuff);
     armorFrame.ValueFrame.Value:SetText(armorText);
     armorFrame.tooltipRow1 = AS.GetStatTooltipText(armorFrame.name, base, armorPosBuff, armorNegBuff);
     armorFrame.tooltipRow2 = GetArmorDetailText(base, armorPosBuff, armorNegBuff);
@@ -64,7 +64,7 @@ function AS.Frame_SetDefenses(playerLevel)
     elseif (defenseModifier < 0) then
         defNegBuff = defenseModifier;
     end
-    local defenseText = AS.GetStatValue(defenseValue, defPosBuff, defNegBuff);
+    local defenseText = AS.GetFormattedStatValue(defenseValue, defPosBuff, defNegBuff);
     defenseFrame.ValueFrame.Value:SetText(defenseText);
     defenseFrame.tooltipRow1 = AS.GetStatTooltipText(defenseFrame.name, defenseValue, defPosBuff, defNegBuff);
     defenseFrame.tooltipRow2 = GetDefenseDetailText(defenseValue, defPosBuff, defNegBuff);

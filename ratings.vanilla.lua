@@ -84,9 +84,9 @@ local function SetWeaponSkillFrame(playerLevel, hasOffhand, wepSkillFrame)
     local wepSkillTooltipRow1;
     local wepSkillTooltipRow2;
 
-    wepSkillText = AS.GetStatValue(mainBase, mainMod, 0);
+    wepSkillText = AS.GetFormattedStatValue(mainBase, mainMod, 0);
     if (hasOffhand) then
-        wepSkillText = wepSkillText .. " / " .. AS.GetStatValue(offBase, offMod, 0);
+        wepSkillText = wepSkillText .. " / " .. AS.GetFormattedStatValue(offBase, offMod, 0);
     end
 
     local wepSkillHeader, _ = AS.GetStatTooltipText("Weapon Skill (Main)", mainBase, mainMod, 0);
@@ -129,9 +129,9 @@ local function SetExpertiseFrame(mainhandExpertise, offhandExpertise, hasOffhand
     local expertiseTooltipRow1;
     local expertiseTooltipRow2;
 
-    expertiseText = AS.GetStatValue(mainhandExpertise, 0, 0);
+    expertiseText = AS.GetFormattedStatValue(mainhandExpertise, 0, 0);
     if (hasOffhandWeapon) then
-        expertiseText = expertiseText .. " / " .. AS.GetStatValue(offhandExpertise, 0, 0);
+        expertiseText = expertiseText .. " / " .. AS.GetFormattedStatValue(offhandExpertise, 0, 0);
     end
 
     local expertiseHeader, _ = AS.GetStatTooltipText("Expertise (Main Hand)", mainhandExpertise, 0, 0);
@@ -159,7 +159,86 @@ local function SetMeleeArmorPenetrationFrame(armorPen, armorPenFrame)
     armorPenFrame.tooltipRow2 = "Makes your attacks ignore " .. armorPen .. " of an enemy's armor";
 end
 
-local function SetSpellDamageFrame()
+local function SpellDamageTooltip(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+    GameTooltip:SetText("Bonus Damage " .. self.normalSpellDamage, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g,
+                        HIGHLIGHT_FONT_COLOR.b);
+    GameTooltip:AddLine(" "); -- Blank line.
+    for i = 2, 7 do
+        local schoolDamage = GetSpellBonusDamage(i);
+        GameTooltip:AddDoubleLine(AS.SPELL_SCHOOL_NAMES[i], schoolDamage, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g,
+                                  NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g,
+                                  HIGHLIGHT_FONT_COLOR.b);
+        GameTooltip:AddTexture("Interface\\PaperDollInfoFrame\\SpellSchoolIcon" .. i);
+    end
+
+    GameTooltip:Show();
+end
+
+local function SetSpellDamageFrame(highestSpellDamage, spellDamageFrame)
+    spellDamageFrame.normalSpellDamage = highestSpellDamage;
+    spellDamageFrame.ValueFrame.Value:SetText(highestSpellDamage);
+    spellDamageFrame.tooltipSpecialCase = SpellDamageTooltip;
+end
+
+local function SetSpellHealingFrame(bonusHealing, healingFrame)
+    healingFrame.ValueFrame.Value:SetText(bonusHealing);
+    healingFrame.tooltipRow1 = "Bonus Healing " .. bonusHealing
+    healingFrame.tooltipRow2 = "Increase your healing by up to " .. bonusHealing;
+end
+
+local function SetSpellHasteFrame(spellHastePercent, spellHasteFrame)
+    spellHasteFrame.ValueFrame.Value:SetText(spellHastePercent .. "%");
+    spellHasteFrame.tooltipRow1 = "Spell Haste " .. format("%.2F", spellHastePercent) .. "%";
+    spellHasteFrame.tooltipRow2 = "Increases the speed that you cast your spells by " ..
+                                      format("%.2F", spellHastePercent) .. "%";
+end
+
+local function SetSpellHitFrame(baseSpellHitPercent, playerLevel, spellHitFrame)
+    local totalSpellHit = baseSpellHitPercent; -- TODO: Does the GetSpellHitModifier() we use factor in hit from gear?
+    spellHitFrame.ValueFrame.Value:SetText(totalSpellHit .. "%");
+    spellHitFrame.tooltipRow1 = "Spell Hit Chance " .. totalSpellHit .. "%";
+    spellHitFrame.tooltipRow2 = "Increases your chance to hit a level " .. playerLevel .. " target with spells by " ..
+                                    totalSpellHit .. "%";
+end
+
+local function SpellCritTooltip(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+    GameTooltip:SetText("Spell Crit Chance " .. self.normalSpellCritPercent .. "%", HIGHLIGHT_FONT_COLOR.r,
+                        HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+    GameTooltip:AddLine(" "); -- Blank line.
+    for i = 2, 7 do
+        local schoolCrit = GetSpellCritChance(i);
+        GameTooltip:AddDoubleLine(AS.SPELL_SCHOOL_NAMES[i], format("%.2F", schoolCrit) .. "%", NORMAL_FONT_COLOR.r,
+                                  NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r,
+                                  HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+        GameTooltip:AddTexture("Interface\\PaperDollInfoFrame\\SpellSchoolIcon" .. i);
+    end
+
+    GameTooltip:Show();
+end
+
+local function SetSpellCritFrame(normalSpellCritPercent, spellCritFrame)
+    spellCritFrame.ValueFrame.Value:SetText(normalSpellCritPercent .. "%");
+    spellCritFrame.tooltipSpecialCase = SpellCritTooltip;
+end
+
+local function SetManaRegenFrame(className, manaRegenFrame)
+    if (className == AS.CLASSES.Rogue or className == AS.CLASSES.Warrior) then
+        manaRegenFrame.ValueFrame.Value:SetText("--");
+        manaRegenFrame.tooltipRow1 = "Mana Regeneration 0";
+        manaRegenFrame.tooltipRow2 = "You have no mana. Why are you here?";
+    else
+        local notCasting, casting = GetManaRegen("player"); -- Returns MP1, not MP5
+        local notCastingP5 = format("%.0F", notCasting * 5.0);
+        local castingP5 = format("%.0F", casting * 5.0);
+        local mp5Text = notCastingP5 .. " / " .. castingP5;
+        manaRegenFrame.ValueFrame.Value:SetText(mp5Text);
+        manaRegenFrame.tooltipRow1 = "Mana Regeneration " .. mp5Text;
+        manaRegenFrame.tooltipRow2 = notCastingP5 .. " MP/5 while not casting" .. "\n" .. castingP5 ..
+                                         " MP/5 while casting";
+
+    end
 end
 
 AS.Ratings = {
@@ -176,4 +255,9 @@ AS.Ratings = {
     SetMeleeArmorPenetrationFrame = SetMeleeArmorPenetrationFrame,
 
     SetSpellDamageFrame = SetSpellDamageFrame,
+    SetSpellHealingFrame = SetSpellHealingFrame,
+    SetSpellHasteFrame = SetSpellHasteFrame,
+    SetSpellHitFrame = SetSpellHitFrame,
+    SetSpellCritFrame = SetSpellCritFrame,
+    SetManaRegenFrame = SetManaRegenFrame,
 }
