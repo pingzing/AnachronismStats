@@ -110,7 +110,8 @@ local function SetExpertiseFrame(mainhandExpertise, offhandExpertise, hasOffhand
 
     local expertiseHeader, _ = AS.GetStatTooltipText("Expertise (Main Hand)", mainhandExpertise, 0, 0);
     if (hasOffhandWeapon) then
-        expertiseHeader = expertiseHeader .. "\n" .. AS.GetStatTooltipText("Expertise (Offhand)", offhandExpertise, 0, 0);
+        expertiseHeader = expertiseHeader .. "\n" ..
+                              AS.GetStatTooltipText("Expertise (Offhand)", offhandExpertise, 0, 0);
     end
     expertiseTooltipRow1 = expertiseHeader;
 
@@ -248,8 +249,8 @@ local function SpellCritTooltip(self)
     GameTooltip:AddLine(" "); -- Blank line.
     for i = 2, 7 do
         local schoolCrit = GetSpellCritChance(i);
-        GameTooltip:AddDoubleLine(AS.Ratings.SPELL_SCHOOL_NAMES[i], format("%.2F", schoolCrit) .. "%", NORMAL_FONT_COLOR.r,
-                                  NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r,
+        GameTooltip:AddDoubleLine(AS.Ratings.SPELL_SCHOOL_NAMES[i], format("%.2F", schoolCrit) .. "%",
+                                  NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r,
                                   HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
         GameTooltip:AddTexture("Interface\\PaperDollInfoFrame\\SpellSchoolIcon" .. i);
     end
@@ -280,6 +281,99 @@ local function SetManaRegenFrame(className, manaRegenFrame)
     end
 end
 
+local function SetArmorFrame(base, armorPosBuff, armorNegBuff, playerLevel, armorFrame)
+    local armorText = AS.GetFormattedStatValue(base, armorPosBuff, armorNegBuff);
+    armorFrame.ValueFrame.Value:SetText(armorText);
+    armorFrame.tooltipRow1 = AS.GetStatTooltipText(armorFrame.name, base, armorPosBuff, armorNegBuff);
+
+    local effectiveArmor = base + armorPosBuff + armorNegBuff;
+    -- Some serious magic, taken straight form Blizzard's PaperDoll code
+    local armorReduction = effectiveArmor / ((85 * playerLevel) + 400);
+    armorReduction = 100 * (armorReduction / (armorReduction + 1));
+    armorFrame.tooltipRow2 = "Reduces physical damage taken from level " .. playerLevel .. " enemies by " ..
+                                 format("%.2F", armorReduction) .. "%";
+end
+
+local function SetDefenseFrame(defenseValue, defenseModifier, playerLevel, defenseFrame)
+    -- defenseModifier is a single modifier value, which can be positive or negative.
+    local defPosBuff, defNegBuff = 0, 0;
+    if (defenseModifier > 0) then
+        defPosBuff = defenseModifier;
+    elseif (defenseModifier < 0) then
+        defNegBuff = defenseModifier;
+    end
+    local defenseText = AS.GetFormattedStatValue(defenseValue, defPosBuff, defNegBuff);
+    defenseFrame.ValueFrame.Value:SetText(defenseText);
+    defenseFrame.tooltipRow1 = AS.GetStatTooltipText(defenseFrame.name, defenseValue, defPosBuff, defNegBuff);
+
+    local effectiveDefense = defenseValue + defPosBuff + defNegBuff;
+    local maxSkillForLevel = playerLevel * 5;
+    local bonusSkill = effectiveDefense - maxSkillForLevel;
+    local defenseRating = GetCombatRating(AS.Ratings.IDs.Defense);
+    local defenseFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Defense);
+    local percentBonusText = format("%.2F", max(0, bonusSkill * .04)) .. "%";
+    -- Not certain about the daze .16 value.
+    -- LuaFormatter off
+    defenseFrame.tooltipRow2 = "Against a level " .. playerLevel .. " enemy:" ..
+                                "\n -" .. percentBonusText .." to be hit/crit " ..
+                                "\n +" .. percentBonusText .. " Block/Dodge/Parry " ..
+                                "\n -" .. format("%.2F", max(0, bonusSkill * .16)) .. "% chance to be dazed" ..
+                                "\nDefense rating: " .. defenseRating .. " (+" .. defenseFromRating .. " defense)";
+                                -- LuaFormatter on
+end
+
+local function SetBlockFrame(blockChance, blockValue, playerLevel, blockFrame)
+    local blockChanceText = format("%.2F", blockChance) .. "%";
+    local blockRating = GetCombatRating(AS.Ratings.IDs.Block);
+    local blockPercentFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Block);
+    blockFrame.ValueFrame.Value:SetText(blockChanceText);
+    blockFrame.tooltipRow1 = "Block Chance " .. blockChanceText;
+    blockFrame.tooltipRow2 =
+        "Increases your chance to block by " .. blockChanceText .. " against level " .. playerLevel .. " targets" ..
+            "\nBlock value: " .. blockValue .. "\nBlock rating: " .. blockRating .. " (+" .. blockPercentFromRating ..
+            "% to block)";
+end
+
+local function SetDodgeFrame(dodgeChance, playerLevel, dodgeFrame)
+    local dodgeChanceText = format("%.2F", dodgeChance) .. "%";
+    local dodgeRating = GetCombatRating(AS.Ratings.IDs.Dodge);
+    local dodgePercentFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Dodge);
+    dodgeFrame.ValueFrame.Value:SetText(dodgeChanceText);
+    dodgeFrame.tooltipRow1 = "Dodge Chance " .. dodgeChanceText;
+    dodgeFrame.tooltipRow2 =
+        "Increases your chance to dodge by " .. dodgeChanceText .. " against level " .. playerLevel .. " targets" ..
+            "\nDodge rating: " .. dodgeRating .. " (+" .. dodgePercentFromRating .. "% to dodge)";
+end
+
+local function SetParryFrame(parryChance, playerLevel, parryFrame)
+    local parryChanceText = format("%.2F", parryChance) .. "%";
+    local parryRating = GetCombatRating(AS.Ratings.IDs.Parry);
+    local parryPercentFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Parry);
+    parryFrame.ValueFrame.Value:SetText(parryChanceText);
+    parryFrame.tooltipRow1 = "Parry Chance " .. parryChanceText;
+    parryFrame.tooltipRow2 =
+        "Increases your chance to parry by " .. parryChanceText .. " against level " .. playerLevel .. " targets" ..
+            "\nParry rating: " .. parryRating .. " (+" .. parryPercentFromRating .. "% to parry)";
+end
+
+local function SetAvoidanceFrame(defenseValue, defenseModifier, dodgeChance, parryChance, blockChance, playerLevel,
+                                 avoidanceFrame)
+    local currMaxDefense = playerLevel * 5;
+    local missedChance = 5.0 + max(0, ((defenseValue + defenseModifier) - currMaxDefense)) * .04; -- 5% missed is baseline for everyone    
+    local totalAvoidance = dodgeChance + parryChance + missedChance;
+    local totalMitigation = totalAvoidance + blockChance;
+    local crushChance = min(15, 102.4 - totalMitigation);
+    local avoidanceChanceText = format("%.2F", totalAvoidance) .. "%";
+    local mitigationChanceText = format("%.2F", totalMitigation) .. "%";
+
+    avoidanceFrame.ValueFrame.Value:SetText(avoidanceChanceText);
+    avoidanceFrame.tooltipRow1 = "Avoidance " .. avoidanceChanceText;
+    avoidanceFrame.tooltipRow2 = "Combined chance to dodge, parry, or be missed by an enemy's attack" ..
+                                     "\n\nMitigation (includes Block): " .. mitigationChanceText ..
+                                     "\n\nChance to be crushed against a level " .. playerLevel + 3 .. " enemy: " ..
+                                     format("%.2F", max(0, crushChance)) .. "%";
+end
+
 AS.Ratings = {
     IntPerSpellCrit = INT_PER_SPELLCRIT,
     AgiPerCrit = AGI_PER_CRIT,
@@ -299,4 +393,11 @@ AS.Ratings = {
     SetSpellHitFrame = SetSpellHitFrame,
     SetSpellCritFrame = SetSpellCritFrame,
     SetManaRegenFrame = SetManaRegenFrame,
+
+    SetArmorFrame = SetArmorFrame,
+    SetDefenseFrame = SetDefenseFrame,
+    SetBlockFrame = SetBlockFrame,
+    SetDodgeFrame = SetDodgeFrame,
+    SetParryFrame = SetParryFrame,
+    SetAvoidanceFrame = SetAvoidanceFrame,
 };

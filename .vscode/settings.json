@@ -92,7 +92,9 @@
     "AS_StatsHeaderFrame",
     "AS_SpellContainerFrame",
     "AS_SpellHeaderFrame",
-    "UnitSpellHaste"
+    "UnitSpellHaste",
+    "AS_DefensesContainerFrame",
+    "AS_DefensesHeaderFrame"
   ],
   "editor.formatOnSave": false
 }
