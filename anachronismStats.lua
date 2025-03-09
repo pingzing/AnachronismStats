@@ -1,5 +1,17 @@
 local addonName, AS = ...; -- Get addon name and shared table.
 
+--- Addon is running on Classic "Vanilla" client: Means Classic Era and its seasons like SoM
+---@type boolean
+AS.IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+
+--- Addon is running on Classic TBC client
+---@type boolean
+AS.IsTBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+
+--- Addon is running on Classic Season of Discovery client
+---@type boolean
+AS.IsSoD = AS.IsClassic and C_Seasons.HasActiveSeason() and (C_Seasons.GetActiveSeason() ~= Enum.SeasonID.Hardcore)
+
 AS.ContainerFrame = nil; -- Gets set in OnLoad.
 
 -- Keys are integer position, value is string name of panel.
@@ -9,7 +21,7 @@ AnachronismStats_PanelPositions = nil;
 local _isOpen = false;
 
 -- Keys are names, values are references to panels
-local _panelReferences = nil;
+local _panelReferences = {};
 
 -- //// PANEL POSITION HANDLING ////
 
@@ -267,7 +279,6 @@ local function LoadCompleted()
     local spellPanel = AS.GetSpellPanel();
     local defensesPanel = AS.GetDefensePanel();
     local rangedPanel = AS.GetRangedPanel();
-    _panelReferences = {};
     _panelReferences[attrPanel:GetName()] = attrPanel;
     _panelReferences[meleePanel:GetName()] = meleePanel;
     _panelReferences[spellPanel:GetName()] = spellPanel;
@@ -276,6 +287,32 @@ local function LoadCompleted()
 
     local panelPositions = GetOrLoadPanelPositions();
     ArrangePanels(panelPositions);
+
+    --Handle moving self around if the EngravingFrame is open
+    PaperDollItemsFrame:HookScript("OnShow", function()
+        if AS.IsSoD then
+            C_Timer.After(0.3, function ()
+                if EngravingFrame then
+                    if EngravingFrame:IsShown() then
+                        AnachronismStats_RootFrame:ClearAllPoints();
+                        AnachronismStats_RootFrame:SetPoint("LEFT", EngravingFrame, "RIGHT", 4, 19);
+                    end
+
+                    if (not EngravingFrameHooked) then
+                        EngravingFrame:HookScript("OnShow", function ()
+                            AnachronismStats_RootFrame:ClearAllPoints();
+                            AnachronismStats_RootFrame:SetPoint("LEFT", EngravingFrame, "RIGHT", 4, 19);
+                        end)
+                        EngravingFrame:HookScript("OnHide", function ()
+                            AnachronismStats_RootFrame:ClearAllPoints()
+                            AnachronismStats_RootFrame:SetPoint("TOPLEFT", PaperDollItemsFrame, "TOPRIGHT", -38, -8);
+                        end)
+                        EngravingFrameHooked = true
+                    end
+                end
+            end)
+        end
+    end)
 
     print("AnachronismStats loaded!");
 end
