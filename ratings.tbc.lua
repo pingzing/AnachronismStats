@@ -5,14 +5,7 @@ local addonName, AS = ...; -- Get addon name and shared table.
 
 AS.MAX_LEVEL = 70;
 
-local INT_PER_SPELLCRIT = {
-    PALADIN = 79.4,
-    WARLOCK = 81.9,
-    DRUID = 79.4,
-    SHAMAN = 78.1,
-    MAGE = 81,
-    PRIEST = 80,
-};
+local INT_PER_SPELLCRIT = { PALADIN = 79.4, WARLOCK = 81.9, DRUID = 79.4, SHAMAN = 78.1, MAGE = 81, PRIEST = 80 };
 
 local AGI_PER_CRIT = {
     WARRIOR = 33,
@@ -79,12 +72,68 @@ local function GetPercentRegenWhileCasting(class)
     return 0;
 end
 
+local function SetMeleeHitFrame(playerLevel, hitChance, hitFrame)
+    hitFrame.ValueFrame.Value:SetText(hitChance .. "%");
 
-local function GetMeleeHitTooltipLine2(playerLevel, hitChance)
     local hitRating = GetCombatRating(AS.Ratings.IDs.MeleeHit);
     local hitFromRating = GetCombatRatingBonus(AS.Ratings.IDs.MeleeHit);
-    return  "Increases your melee chance to hit a target of level " .. playerLevel .. " by " .. hitChance .. "%" ..
-    "\nHit rating: " .. hitRating .. " (+" .. format("%.2F", hitFromRating) .. "% to hit)";
+    hitFrame.tooltipRow1 = "Hit Chance " .. hitChance .. "%";
+    hitFrame.tooltipRow2 =
+        "Increases your melee chance to hit a target of level " .. playerLevel .. " by " .. hitChance .. "%" ..
+            "\nHit rating: " .. hitRating .. " (+" .. format("%.2F", hitFromRating) .. "% to hit)";
+end
+
+local function SetMeleeCritFrame(playerLevel, critChance, critFrame)
+    local critRating = GetCombatRating(AS.Ratings.IDs.MeleeCrit);
+    local critFromRating = GetCombatRatingBonus(AS.Ratings.IDs.MeleeCrit);
+    -- TODO: Get crit for per-weapon talents. Lotta classes have those.
+    local critText = format("%.2F", critChance) .. "%";
+    critFrame.ValueFrame.Value:SetText(critText);
+    critFrame.tooltipRow1 = "Critical Hit Chance " .. critText;
+    critFrame.tooltipRow2 = "Increases your melee chance to crit a target of level " .. playerLevel .. " by " ..
+                                critText .. "\nCrit rating: " .. critRating .. " (+" .. format("%.2F", critFromRating) ..
+                                "% to crit)";
+end
+
+local function SetExpertiseFrame(mainhandExpertise, offhandExpertise, hasOffhandWeapon, expertiseFrame)
+    -- TODO: Show ranged Expertise?
+    local expertiseRating = GetCombatRating(AS.Ratings.IDs.Expertise);
+
+    local expertiseText;
+    local expertiseTooltipRow1;
+    local expertiseTooltipRow2;
+
+    expertiseText = AS.GetStatValue(mainhandExpertise, 0, 0);
+    if (hasOffhandWeapon) then
+        expertiseText = expertiseText .. " / " .. AS.GetStatValue(offhandExpertise, 0, 0);
+    end
+
+    local expertiseHeader, _ = AS.GetStatTooltipText("Expertise (Main Hand)", mainhandExpertise, 0, 0);
+    if (hasOffhandWeapon) then
+        expertiseHeader = expertiseHeader .. "\n" .. AS.GetStatTooltipText("Expertise (Offhand)", offhandExpertise, 0, 0);
+    end
+    expertiseTooltipRow1 = expertiseHeader;
+
+    local mainPercent = format("%.2F", mainhandExpertise * .25) .. "%";
+    local offPercent = format("%.2F", offhandExpertise * .25) .. "%";
+    expertiseTooltipRow2 = "Reduces the chance that your melee attacks will be dodged or parried by " .. mainPercent;
+    if (hasOffhandWeapon) then
+        expertiseTooltipRow2 = expertiseTooltipRow2 .. " / " .. offPercent;
+    end
+
+    local expertiseFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Expertise);
+    expertiseTooltipRow2 = expertiseTooltipRow2 .. "\nExpertise rating: " .. expertiseRating .. " (+" ..
+                               expertiseFromRating .. " expertise)";
+
+    expertiseFrame.ValueFrame.Value:SetText(expertiseText);
+    expertiseFrame.tooltipRow1 = expertiseTooltipRow1;
+    expertiseFrame.tooltipRow2 = expertiseTooltipRow2;
+end
+
+local function SetMeleeArmorPenetrationFrame(armorPen, armorPenFrame)
+    armorPenFrame.ValueFrame.Value:SetText(armorPen);
+    armorPenFrame.tooltipRow1 = "Armor Penetration " .. armorPen;
+    armorPenFrame.tooltipRow2 = "Makes your attacks ignore " .. armorPen .. " of an enemy's armor";
 end
 
 AS.Ratings = {
@@ -93,5 +142,12 @@ AS.Ratings = {
     AgiPerDodge = AGI_PER_DODGE,
     IDs = ratingIDs,
     GetPercentRegenWhileCasting = GetPercentRegenWhileCasting,
-    GetMeleeHitTooltipLine2 = GetMeleeHitTooltipLine2,
+
+    SetMeleeHitFrame = SetMeleeHitFrame,
+    SetMeleeCritFrame = SetMeleeCritFrame,
+    SetWeaponSkillFrame = nil,
+    SetExpertiseFrame = SetExpertiseFrame,
+    SetMeleeArmorPenetrationFrame = SetMeleeArmorPenetrationFrame,
+
+    SetSpellDamageFrame = SetSpellDamageFrame,
 };

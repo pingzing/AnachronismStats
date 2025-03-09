@@ -1,8 +1,6 @@
 local addonName, AS = ... -- Get addon name and shared table.
 AnachronismStats = AS -- Globalized, so XML can see it
 
--- All these tables assume level 70.
-
 local function GetStrengthDetailText(current)
     local _, classFileName = UnitClass("player");
     local stanceNum = GetShapeshiftForm();

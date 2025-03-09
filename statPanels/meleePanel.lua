@@ -125,37 +125,6 @@ local function FillOutMeleeDamageFrame(frame)
     return frame;
 end
 
--- main, hasOffhand, off, offMod, expertiseRating, playerLevel
-local function GetExpertiseDetails(main, hasOffhand, off, expertiseRating, playerLevel)
-    local expertiseText;
-    local expertiseTooltipRow1;
-    local expertiseTooltipRow2;
-
-    expertiseText = AS.GetStatValue(main, 0, 0);
-    if (hasOffhand) then
-        expertiseText = expertiseText .. " / " .. AS.GetStatValue(off, 0, 0);
-    end
-
-    local expertiseHeader, _ = AS.GetStatTooltipText("Expertise (Main Hand)", main, 0, 0);
-    if (hasOffhand) then
-        expertiseHeader = expertiseHeader .. "\n" .. AS.GetStatTooltipText("Expertise (Offhand)", off, 0, 0);
-    end
-    expertiseTooltipRow1 = expertiseHeader;
-
-    local mainPercent = format("%.2F", main * .25) .. "%";
-    local offPercent = format("%.2F", off * .25) .. "%";
-    expertiseTooltipRow2 = "Reduces the chance that your melee attacks will be dodged or parried by " .. mainPercent;
-    if (hasOffhand) then
-        expertiseTooltipRow2 = expertiseTooltipRow2 .. " / " .. offPercent;
-    end
-
-    local expertiseFromRating = GetCombatRatingBonus(AS.Ratings.IDs.Expertise);
-    expertiseTooltipRow2 = expertiseTooltipRow2 .. "\nExpertise rating: " .. expertiseRating .. " (+" ..
-                               expertiseFromRating .. " expertise)";
-
-    return expertiseText, expertiseTooltipRow1, expertiseTooltipRow2;
-end
-
 local function OnUpArrow_Click()
     AS.StatPanel_UpArrow_OnClick(AS_MeleeContainerFrame);
 end
@@ -210,40 +179,37 @@ function AS.Frame_SetMelee(playerLevel)
     -- Hit Chance
     local hitFrame = AS_MeleeLabelFrame4;
     local hitChance = GetHitModifier();
-    hitFrame.ValueFrame.Value:SetText(hitChance .. "%");
-    hitFrame.tooltipRow1 = "Hit Chance " .. hitChance .. "%";
-    hitFrame.tooltipRow2 = AS.Ratings.GetMeleeHitTooltipLine2(playerLevel, hitChance);
+    AS.Ratings.SetMeleeHitFrame(playerLevel, hitChance, hitFrame);
 
     -- Crit chance
     local critFrame = AS_MeleeLabelFrame5;
     local critChance = GetCritChance();
-    local critRating = GetCombatRating(AS.Ratings.IDs.MeleeCrit);
-    local critFromRating = GetCombatRatingBonus(AS.Ratings.IDs.MeleeCrit);
-    -- TODO: Get crit for per-weapon talents. Lotta AS.CLASSES have those.
-    local critText = format("%.2F", critChance) .. "%";
-    critFrame.ValueFrame.Value:SetText(critText);
-    critFrame.tooltipRow1 = "Critical Hit Chance " .. critText;
-    critFrame.tooltipRow2 = "Increases your melee chance to crit a target of level " .. playerLevel .. " by " ..
-                                critText .. "\nCrit rating: " .. critRating .. " (+" .. format("%.2F", critFromRating) ..
-                                "% to crit)";
+    AS.Ratings.SetMeleeCritFrame(playerLevel, critChance, critFrame);
+
+    -- Weapon Skill
+    local wepSkillFrame = AS_MeleeLabelFrame6;
+    if (not AS.IsClassic) then
+        wepSkillFrame:ClearAllPoints();
+        wepSkillFrame:Hide();
+    else
+        AS.Ratings.SetWeaponSkillFrame(playerLevel, OffhandHasWeapon(), wepSkillFrame);
+    end
 
     -- Expertise
-    local expertiseFrame = AS_MeleeLabelFrame6;
-    local main, off, _ = GetExpertise();
-    local expertiseRating = GetCombatRating(AS.Ratings.IDs.Expertise);
-    local hasOffhand = OffhandHasWeapon();
-    local expertiseText, expertiseTooltipRow1, expertiseTooltipRow2 =
-        GetExpertiseDetails(main, hasOffhand, off, expertiseRating, playerLevel);
-    expertiseFrame.ValueFrame.Value:SetText(expertiseText);
-    expertiseFrame.tooltipRow1 = expertiseTooltipRow1;
-    expertiseFrame.tooltipRow2 = expertiseTooltipRow2;
+    local expertiseFrame = AS_MeleeLabelFrame7;
+    if (not AS.IsClassic) then
+        expertiseFrame:ClearAllPoints();
+        expertiseFrame:SetPoint("TOPLEFT", critFrame, 0, -12);
+    else
+        local main, off, _ = GetExpertise();
+        AS.Ratings.SetExpertiseFrame(main, off, OffhandHasWeapon(), expertiseFrame);
+    end
 
     -- Arrmor Penetration
-    local armorPenFrame = AS_MeleeLabelFrame7;
+    local armorPenFrame = AS_MeleeLabelFrame8;
     local arPen = GetArmorPenetration();
-    armorPenFrame.ValueFrame.Value:SetText(arPen);
-    armorPenFrame.tooltipRow1 = "Armor Penetration " .. arPen;
-    armorPenFrame.tooltipRow2 = "Makes your attacks ignore " .. arPen .. " of an enemy's armor";
+    AS.Ratings.SetMeleeArmorPenetrationFrame(arPen, armorPenFrame);
+
 end
 
 function AS.GetMeleePanel()

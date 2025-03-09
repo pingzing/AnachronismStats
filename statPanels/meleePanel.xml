@@ -3,7 +3,7 @@
 
   <!-- Melee container frame-->
   <Frame name="AS_MeleeContainerFrame">
-    <Size x="130" y="106" />
+    <Size x="130" y="118" />
     <Anchors>
       <Anchor point="TOPLEFT" relativeTo="AnachronismStats_ContentAnchor" relativePoint="TOPLEFT">
         <Offset x="5" y="-80" />
@@ -107,10 +107,26 @@
           </OnLoad>
         </Scripts>
       </Frame>
-      <!-- Expertise -->
+      <!-- Weapon Skill -->
       <Frame name="AS_MeleeLabelFrame6" inherits="AS_StatFrameTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame5">
+            <Offset>
+              <AbsDimension x="0" y="-12" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad>
+            self.Label:SetText("Weapon Skill:");
+            self.name = "Weapon skill";
+          </OnLoad>
+        </Scripts>
+      </Frame>
+      <!-- Expertise -->
+      <Frame name="AS_MeleeLabelFrame7" inherits="AS_StatFrameTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame6">
             <Offset>
               <AbsDimension x="0" y="-12" />
             </Offset>
@@ -123,9 +139,10 @@
           </OnLoad>
         </Scripts>
       </Frame>
-      <Frame name="AS_MeleeLabelFrame7" inherits="AS_StatFrameTemplate">
+      <!-- Armor Pen -->
+      <Frame name="AS_MeleeLabelFrame8" inherits="AS_StatFrameTemplate">
         <Anchors>
-          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame6">
+          <Anchor point="TOPLEFT" relativeTo="AS_MeleeLabelFrame7">
             <Offset x="0" y="-12"/>
           </Anchor>
         </Anchors>

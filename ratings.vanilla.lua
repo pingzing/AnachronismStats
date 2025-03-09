@@ -61,8 +61,105 @@ local function GetPercentRegenWhileCasting(class)
     return 0;
 end
 
-local function GetMeleeHitTooltipLine2(playerLevel, hitChance)
-    return  "Increases your melee chance to hit a target of level " .. playerLevel .. " by " .. hitChance .. "%";
+local function SetMeleeHitFrame(playerLevel, hitChance, hitFrame)
+    hitFrame.ValueFrame.Value:SetText(hitChance .. "%");
+
+    hitFrame.tooltipRow1 = "Hit Chance " .. hitChance .. "%";
+    hitFrame.tooltipRow2 =
+        "Increases your melee chance to hit a target of level " .. playerLevel .. " by " .. hitChance .. "%";
+end
+
+local function SetMeleeCritFrame(playerLevel, critChance, critFrame)
+    -- TODO: Get crit for per-weapon talents. Lotta classes have those.
+    local critText = format("%.2F", critChance) .. "%";
+    critFrame.ValueFrame.Value:SetText(critText);
+    critFrame.tooltipRow1 = "Critical Hit Chance " .. critText;
+    critFrame.tooltipRow2 = "Increases your melee chance to crit a target of level " .. playerLevel .. " by " ..
+                                critText;
+end
+
+local function SetWeaponSkillFrame(playerLevel, hasOffhand, wepSkillFrame)
+    local mainBase, mainMod, offBase, offMod = UnitAttackBothHands("player");
+    local wepSkillText;
+    local wepSkillTooltipRow1;
+    local wepSkillTooltipRow2;
+
+    wepSkillText = AS.GetStatValue(mainBase, mainMod, 0);
+    if (hasOffhand) then
+        wepSkillText = wepSkillText .. " / " .. AS.GetStatValue(offBase, offMod, 0);
+    end
+
+    local wepSkillHeader, _ = AS.GetStatTooltipText("Weapon Skill (Main)", mainBase, mainMod, 0);
+    if (hasOffhand) then
+        wepSkillHeader = wepSkillHeader .. "\n" .. AS.GetStatTooltipText("Weapon Skill (Off)", offBase, offMod, 0);
+    end
+
+    wepSkillTooltipRow1 = wepSkillHeader;
+    local maxSkillForLevel = playerLevel * 5;
+
+    -- These might be negative.
+    local bonusSkillMain = mainBase - maxSkillForLevel;
+    local bonusSkillOff = offBase - maxSkillForLevel;
+    local mainPercentBonus = format("%.2F", max(0, bonusSkillMain * .04)) .. "%";
+    local offPercentBonus = format("%.2F", max(0, bonusSkillOff * .04)) .. "%";
+    wepSkillTooltipRow2 =
+        "Increases your chance to hit and crit, and reduce chance to be blocked, dodged or parried by " ..
+            mainPercentBonus;
+    if (hasOffhand) then
+        wepSkillTooltipRow2 = wepSkillTooltipRow2 .. " / " .. offPercentBonus;
+    end
+
+    wepSkillTooltipRow2 = wepSkillTooltipRow2 .. " by a level " .. playerLevel .. " enemy";
+    wepSkillTooltipRow2 = wepSkillTooltipRow2 ..
+                              "\nAlso reduces Glancing Blow damage penalty against higher-level enemies by " ..
+                              (max(0, bonusSkillMain * 3)) .. "%";
+
+    if (hasOffhand) then
+        wepSkillTooltipRow2 = wepSkillTooltipRow2 .. " / " .. (max(0, bonusSkillOff * 3)) .. "%";
+    end
+
+    wepSkillFrame.ValueFrame.Value:SetText(wepSkillText);
+    wepSkillFrame.tooltipRow1 = wepSkillTooltipRow1;
+    wepSkillFrame.tooltipRow2 = wepSkillTooltipRow2;
+end
+
+local function SetExpertiseFrame(mainhandExpertise, offhandExpertise, hasOffhandWeapon, expertiseFrame)
+    -- TODO: Show ranged Expertise?
+    local expertiseText;
+    local expertiseTooltipRow1;
+    local expertiseTooltipRow2;
+
+    expertiseText = AS.GetStatValue(mainhandExpertise, 0, 0);
+    if (hasOffhandWeapon) then
+        expertiseText = expertiseText .. " / " .. AS.GetStatValue(offhandExpertise, 0, 0);
+    end
+
+    local expertiseHeader, _ = AS.GetStatTooltipText("Expertise (Main Hand)", mainhandExpertise, 0, 0);
+    if (hasOffhandWeapon) then
+        expertiseHeader = expertiseHeader .. "\n" ..
+        AS.GetStatTooltipText("Expertise (Offhand)", offhandExpertise, 0, 0);
+    end
+    expertiseTooltipRow1 = expertiseHeader;
+
+    local mainPercent = format("%.2F", mainhandExpertise * .25) .. "%";
+    local offPercent = format("%.2F", offhandExpertise * .25) .. "%";
+    expertiseTooltipRow2 = "Reduces the chance that your melee attacks will be dodged or parried by " .. mainPercent;
+    if (hasOffhandWeapon) then
+        expertiseTooltipRow2 = expertiseTooltipRow2 .. " / " .. offPercent;
+    end
+
+    expertiseFrame.ValueFrame.Value:SetText(expertiseText);
+    expertiseFrame.tooltipRow1 = expertiseTooltipRow1;
+    expertiseFrame.tooltipRow2 = expertiseTooltipRow2;
+end
+
+local function SetMeleeArmorPenetrationFrame(armorPen, armorPenFrame)
+    armorPenFrame.ValueFrame.Value:SetText(armorPen);
+    armorPenFrame.tooltipRow1 = "Armor Penetration " .. armorPen;
+    armorPenFrame.tooltipRow2 = "Makes your attacks ignore " .. armorPen .. " of an enemy's armor";
+end
+
+local function SetSpellDamageFrame()
 end
 
 AS.Ratings = {
@@ -71,5 +168,12 @@ AS.Ratings = {
     AgiPerDodge = AGI_PER_DODGE,
     IDs = nil,
     GetPercentRegenWhileCasting = GetPercentRegenWhileCasting,
-    GetMeleeHitTooltipLine2 = GetMeleeHitTooltipLine2,
+
+    SetMeleeHitFrame = SetMeleeHitFrame,
+    SetMeleeCritFrame = SetMeleeCritFrame,
+    SetWeaponSkillFrame = SetWeaponSkillFrame,
+    SetExpertiseFrame = SetExpertiseFrame,
+    SetMeleeArmorPenetrationFrame = SetMeleeArmorPenetrationFrame,
+
+    SetSpellDamageFrame = SetSpellDamageFrame,
 }
