@@ -203,18 +203,18 @@ end
 local function SetMainFrameVisible(visible)
     if (visible) then
         AnachronismStats_RootFrame:Show();
-        SquareButton_SetIcon(AnachronismStats_OpenStats, "LEFT");
-        _isOpen = true;
     else
         AnachronismStats_RootFrame:Hide();
-        SquareButton_SetIcon(AnachronismStats_OpenStats, "RIGHT");
-        _isOpen = false;
     end
 end
 
 -- //// END GLOBAL FUNCTIONS ////
 
 -- //// EVENT HANDLERS ////
+
+function AnachronismStats_OpenStats_OnLoad(self)
+    SquareButton_SetIcon(self, "RIGHT");
+end
 
 function AnachronismStats_OpenStats_OnClick()
     if (_isOpen) then
@@ -224,14 +224,37 @@ function AnachronismStats_OpenStats_OnClick()
     end
 end
 
-function AnachronismStats_OpenStats_OnLoad(self)
-    SquareButton_SetIcon(self, "RIGHT");
+local function NotifyUIPanelManager(open)
+    local selfWidth = (open and 165 or 0);
+    local engravingFrameWidth = 0;
+    if (EngravingFrame and EngravingFrame:IsShown()) then
+        engravingFrameWidth = EngravingFrame:GetWidth();
+    end
+    local totalWidth = CharacterFrame:GetWidth() + engravingFrameWidth + selfWidth;
+    -- SetUIPanelAttribute and UpdateUIPanelPositions are functions up in Blizzard's
+    -- UIParentPanelManager_Shared file that manage the three central columns in 
+    -- the UI area. If we set these values, we act as good citizens, and make sure
+    -- the layout manager is aware of the CharacterFrame being wider now.
+    SetUIPanelAttribute(CharacterFrame, "width", totalWidth);
+	UpdateUIPanelPositions(CharacterFrame);
 end
 
 function AnachronismStats_OpenStats_OnHide()
     -- Make sure we're not sitting in the background if this tab has focus
     -- when the character frame is closed.
     SetMainFrameVisible(false);
+end
+
+function AnachronismStats_OnShow()
+    SquareButton_SetIcon(AnachronismStats_OpenStats, "LEFT");
+    NotifyUIPanelManager(true);
+    _isOpen = true;
+end
+
+function AnachronismStats_OnHide()
+    SquareButton_SetIcon(AnachronismStats_OpenStats, "RIGHT");
+    NotifyUIPanelManager(false);
+    _isOpen = false;
 end
 
 function AnachronismStats_Frame_OnMouseWheel(self, value, scrollBar)
@@ -296,16 +319,19 @@ local function LoadCompleted()
                     if EngravingFrame:IsShown() then
                         AnachronismStats_RootFrame:ClearAllPoints();
                         AnachronismStats_RootFrame:SetPoint("LEFT", EngravingFrame, "RIGHT", 4, 19);
+                        NotifyUIPanelManager(_isOpen);
                     end
 
                     if (not EngravingFrameHooked) then
                         EngravingFrame:HookScript("OnShow", function ()
                             AnachronismStats_RootFrame:ClearAllPoints();
                             AnachronismStats_RootFrame:SetPoint("LEFT", EngravingFrame, "RIGHT", 4, 19);
+                            NotifyUIPanelManager(_isOpen);
                         end)
                         EngravingFrame:HookScript("OnHide", function ()
                             AnachronismStats_RootFrame:ClearAllPoints()
                             AnachronismStats_RootFrame:SetPoint("TOPLEFT", PaperDollItemsFrame, "TOPRIGHT", -38, -8);
+                            NotifyUIPanelManager(_isOpen);
                         end)
                         EngravingFrameHooked = true
                     end

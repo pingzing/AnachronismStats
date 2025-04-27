@@ -5,8 +5,6 @@ local addonName, AS = ...; -- Get addon name and shared table.
 
 AS.MAX_LEVEL = 70;
 
-local INT_PER_SPELLCRIT = { PALADIN = 79.4, WARLOCK = 81.9, DRUID = 79.4, SHAMAN = 78.1, MAGE = 81, PRIEST = 80 };
-
 local AGI_PER_CRIT = {
     WARRIOR = 33,
     ROGUE = 40,
@@ -70,6 +68,27 @@ local function GetPercentRegenWhileCasting(class)
     end
 
     return 0;
+end
+
+local function GetSpellCritFromInt(int, level, class)
+    return GetSpellCritChanceFromIntellect("player")
+end
+
+local function GetSpiritDetailText(spirit)
+    local _, classFileName = UnitClass("player");
+    if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
+        return "";
+    end
+
+    local hp5FromSpirit = GetUnitHealthRegenRateFromSpirit("player"); -- already HP/5
+    local mp5FromSpirit = GetUnitManaRegenRateFromSpirit("player") * 5.0;
+    local percentWhileCasting = GetPercentRegenWhileCasting(classFileName);
+    local spiritDetailText = "Increases your mana regeneration by " .. floor(mp5FromSpirit) ..
+                                 " per 5 seconds while not casting" .. "\nIncreases your mana regeneration by " ..
+                                 (floor(mp5FromSpirit * (percentWhileCasting / 100))) .. " per 5 seconds while casting" ..
+                                 "\nIncreases your health regeneration by " .. floor(hp5FromSpirit) ..
+                                 " per 5 seconds while not in combat";
+    return spiritDetailText;
 end
 
 local function SetMeleeHitFrame(playerLevel, hitChance, hitFrame)
@@ -375,11 +394,13 @@ local function SetAvoidanceFrame(defenseValue, defenseModifier, dodgeChance, par
 end
 
 AS.Ratings = {
-    IntPerSpellCrit = INT_PER_SPELLCRIT,
     AgiPerCrit = AGI_PER_CRIT,
     AgiPerDodge = AGI_PER_DODGE,
     IDs = ratingIDs,
     GetPercentRegenWhileCasting = GetPercentRegenWhileCasting,
+
+    GetSpellCritFromInt = GetSpellCritFromInt,
+    GetSpiritDetailText = GetSpiritDetailText,
 
     SetMeleeHitFrame = SetMeleeHitFrame,
     SetMeleeCritFrame = SetMeleeCritFrame,

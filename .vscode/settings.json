@@ -94,7 +94,10 @@
     "AS_SpellHeaderFrame",
     "UnitSpellHaste",
     "AS_DefensesContainerFrame",
-    "AS_DefensesHeaderFrame"
+    "AS_DefensesHeaderFrame",
+    "SetUIPanelAttribute",
+    "UpdateUIPanelPositions",
+    "CharacterFrame"
   ],
   "editor.formatOnSave": false
 }

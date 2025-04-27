@@ -67,34 +67,17 @@ local function GetStaminaDetailText(current)
     return "Increases health by " .. healthFromStam;
 end
 
-local function GetIntellectDetailText(current)
+local function GetIntellectDetailText(current, playerLevel)
     local _, classFileName = UnitClass("player");
     -- We could be smart and check to see if the unit has mana, but... Druids. Just do the easy thing.
     if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
         return "";
-    end
+    end    
 
-    local critChance = GetSpellCritChanceFromIntellect("player");
+    local critChance = AS.Ratings.GetSpellCritFromInt(current, playerLevel, classFileName);
     local intelDetailText = "Increases your maximum mana by " .. floor(current * 15) .. "\n";
     intelDetailText = intelDetailText .. "Increases your spell crit chance by " .. format("%.2F", critChance) .. "%";
     return strtrim(intelDetailText);
-end
-
-local function GetSpiritDetailText()
-    local _, classFileName = UnitClass("player");
-    if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
-        return "";
-    end
-
-    local hp5FromSpirit = GetUnitHealthRegenRateFromSpirit("player"); -- already HP/5
-    local mp5FromSpirit = GetUnitManaRegenRateFromSpirit("player") * 5.0;
-    local percentWhileCasting = AS.Ratings.GetPercentRegenWhileCasting(classFileName);
-    local spiritDetailText = "Increases your mana regeneration by " .. floor(mp5FromSpirit) ..
-                                 " per 5 seconds while not casting" .. "\nIncreases your mana regeneration by " ..
-                                 (floor(mp5FromSpirit * (percentWhileCasting / 100))) .. " per 5 seconds while casting" ..
-                                 "\nIncreases your health regeneration by " .. floor(hp5FromSpirit) ..
-                                 " per 5 seconds while not in combat";
-    return spiritDetailText;
 end
 
 local function GetAttributeTooltipDetailText(stat, current, playerLevel)
@@ -105,9 +88,9 @@ local function GetAttributeTooltipDetailText(stat, current, playerLevel)
     elseif (stat == "STAMINA") then
         return GetStaminaDetailText(current);
     elseif (stat == "INTELLECT") then
-        return GetIntellectDetailText(current);
+        return GetIntellectDetailText(current, playerLevel);
     elseif (stat == "SPIRIT") then
-        return GetSpiritDetailText();
+        return AS.Ratings.GetSpiritDetailText(current);
     end
 end
 

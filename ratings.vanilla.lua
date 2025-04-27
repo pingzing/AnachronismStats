@@ -3,7 +3,45 @@ local addonName, AS = ...; -- Get addon name and shared table.
 -- Ratings.vanilla
 -- Vanilla-specific helper functions and tbles for dealing with stat and rating calculations and tooltips
 
+
+-- TODO: Note for getting Expertise and MP5: the API doesn't report either, so we'd need to
+-- have a big table full of item IDs and values per stat. Then, whenever someone's gear
+-- changes, we'd need to go scan all their items to check to see if any of them are in the table,
+-- and build up their total Expertise/MP5.
+-- MP5 would also need to scan buffs, and have a big table of buffs to reference.
+-- And talents. And runes. Agh.
+
 AS.MAX_LEVEL = 60;
+
+local BASE_SPELLCRIT = {
+    PALADIN = 3.336,
+    WARLOCK = 1.701,
+    DRUID = 1.85,
+    SHAMAN = 2.2,
+    MAGE = 0.91,
+    PRIEST = 1.24
+}
+
+-- Note: The table below was discovered very roughly, and so far only for shamans.
+-- Methodology below.
+-- Values discovered by doing the following:
+-- 1) Take a non-max-level character with some intellect
+-- 2) Multiply their level 60 IntPerSpellCrit by whatever fraction of the way 
+--   they are to 60, e.g. 85% at level 51. 
+-- 3) Divide their current int by their current crit-from-int (e.g. current spellcrit minus their base spell crit).
+--     This is their actual int -> spellcrit at their current level.
+-- 4) Take FractionOfLevel60 and multiply that by IntPerSpellCrit at level 60.
+-- 5) Subtract the the values from 3) and 4). This is the amount of int-per-spellcrit at a theoretical level 0.
+-- 6) Multiply the value from 3) by .016666 (i.e. 1/60). Add this to the value from 5). 
+-- 7) This should now be their int -> spellcrit at level 1, and should be a ~single digit decimal number.
+local INT_PER_SPELLCRIT_AT_LEVEL_1 = {
+    PALADIN = 1, -- Currently unknown
+    WARLOCK = 1, -- Currently unknwon
+    DRUID = 1, -- Currently unknwon
+    SHAMAN = 3.418,
+    MAGE = 1, -- Currently unknown
+    PRIEST = 1, -- Currently unknown
+}
 
 -- All these tables assume level 60.
 local INT_PER_SPELLCRIT = {
@@ -59,6 +97,46 @@ local function GetPercentRegenWhileCasting(class)
     end
 
     return 0;
+end
+
+-- This is expressed in HP/1.
+local _healthRegenPerSpi = {
+    ["WARRIOR"] = 0.4,
+    ["PALADIN"] = 0.125,
+    ["HUNTER"] = 0.125,
+    ["ROGUE"] = 0.25,
+    ["PRIEST"] = 0.05,
+    ["SHAMAN"] = 0.055,
+    ["MAGE"] = 0.05,
+    ["WARLOCK"] = 0.035,
+    ["DRUID"] = 0.045,
+}
+
+local function GetSpellCritFromInt(int, level, class)
+    if (level ~= AS.MAX_LEVEL) then
+        local percentTowardMaxLevel = level / AS.MAX_LEVEL;
+        local intPerSpellCrit = (INT_PER_SPELLCRIT[class] - INT_PER_SPELLCRIT_AT_LEVEL_1[class]) * percentTowardMaxLevel;
+        return int / intPerSpellCrit;
+    else
+        return int / INT_PER_SPELLCRIT[class];
+    end
+end
+
+local function GetSpiritDetailText(spirit)
+    local _, classFileName = UnitClass("player");
+    if (classFileName == AS.CLASSES.Rogue or classFileName == AS.CLASSES.Warrior) then
+        return "";
+    end
+
+    local hp5FromSpirit = spirit * _healthRegenPerSpi[classFileName] * 5.0;
+    local mp5FromSpirit = GetUnitManaRegenRateFromSpirit("player");
+    local percentWhileCasting = GetPercentRegenWhileCasting(classFileName);
+    local spiritDetailText = "Increases your mana regeneration by " .. floor(mp5FromSpirit) ..
+                                 " per 5 seconds while not casting" .. "\nIncreases your mana regeneration by " ..
+                                 (floor(mp5FromSpirit * (percentWhileCasting / 100))) .. " per 5 seconds while casting" ..
+                                 "\nIncreases your health regeneration by " .. floor(hp5FromSpirit) ..
+                                 " per 5 seconds while not in combat";
+    return spiritDetailText;
 end
 
 local function SetMeleeHitFrame(playerLevel, hitChance, hitFrame)
@@ -323,11 +401,13 @@ local function SetAvoidanceFrame(defenseValue, defenseModifier, dodgeChance, par
 end
 
 AS.Ratings = {
-    IntPerSpellCrit = INT_PER_SPELLCRIT,
     AgiPerCrit = AGI_PER_CRIT,
     AgiPerDodge = AGI_PER_DODGE,
     IDs = nil,
     GetPercentRegenWhileCasting = GetPercentRegenWhileCasting,
+
+    GetSpellCritFromInt = GetSpellCritFromInt,
+    GetSpiritDetailText = GetSpiritDetailText,
 
     SetMeleeHitFrame = SetMeleeHitFrame,
     SetMeleeCritFrame = SetMeleeCritFrame,

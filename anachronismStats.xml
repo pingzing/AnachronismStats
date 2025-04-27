@@ -38,6 +38,8 @@
       </Anchor>
     </Anchors>
     <Scripts>
+      <OnShow function="AnachronismStats_OnShow"/>
+      <OnHide function="AnachronismStats_OnHide"/>
     </Scripts>
 
     <Frames>
