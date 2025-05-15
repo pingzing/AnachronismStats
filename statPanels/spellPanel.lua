@@ -46,7 +46,14 @@ function AS.Frame_SetSpell(playerLevel)
 
     -- Spell Crit
     local spellCritFrame = AS_SpellLabelFrame5;
-    local normalSpellCritPercent = format("%.2F", GetSpellCritChance(1));
+
+    local minCrit = GetSpellCritChance(2);
+    for i = 3, 7 do
+        local schoolCrit = GetSpellCritChance(i);
+        minCrit = min(minCrit, schoolCrit);
+    end
+
+    local normalSpellCritPercent = format("%.2F", minCrit);
     spellCritFrame.normalSpellCritPercent = normalSpellCritPercent;
     AS.Ratings.SetSpellCritFrame(normalSpellCritPercent, spellCritFrame);
 
